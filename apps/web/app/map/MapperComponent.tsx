@@ -8,11 +8,13 @@ import {
   guessMapping,
   validateRows,
   applyMapping,
+  generateICS,
   Template,
   GuessMappingResult,
   ValidationResult,
-  BusinessWarning 
-} from '@schemamap/engine';
+  BusinessWarning,
+  ICSEvent
+} from '@calendarmap/engine';
 import Link from 'next/link';
 
 const LARGE_FILE_LIMIT = 2000;
@@ -22,7 +24,7 @@ const PREMIUM_FILE_LIMIT = 250000;
 function hasValidLargeFilePass(): boolean {
   if (typeof window === 'undefined') return false;
   
-  const token = localStorage.getItem('schemamap_large_file_pass');
+  const token = localStorage.getItem('calendarmap_large_file_pass');
   if (!token) return false;
   
   try {
@@ -36,7 +38,7 @@ function hasValidLargeFilePass(): boolean {
 function getLargeFilePassInfo() {
   if (typeof window === 'undefined') return null;
   
-  const token = localStorage.getItem('schemamap_large_file_pass');
+  const token = localStorage.getItem('calendarmap_large_file_pass');
   if (!token) return null;
   
   try {
@@ -55,7 +57,7 @@ function getLargeFilePassInfo() {
 
 export default function MapperComponent() {
   const searchParams = useSearchParams();
-  const schema = searchParams.get('schema') || 'shopify-products';
+  const schema = searchParams.get('schema') || 'calendar-ics';
   const template = templates[schema as keyof typeof templates] as Template;
 
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -120,6 +122,13 @@ export default function MapperComponent() {
           { 'Email': 'mike.davis@tech.ca', 'Name': 'Mike Davis', 'Phone': '+1-416-555-0125', 'Address Line 1': '789 Pine St', 'Address Line 2': '', 'City': 'Toronto', 'State': 'ON', 'Postal Code': 'M5H 2N2', 'Country': 'CA', 'Description': '' },
           { 'Email': 'emma@startup.io', 'Name': 'Emma Chen', 'Phone': '+1-415-555-0199', 'Address Line 1': '1 Hacker Way', 'Address Line 2': '', 'City': 'Menlo Park', 'State': 'CA', 'Postal Code': '94301', 'Country': 'US', 'Description': 'Bulk orders' },
           { 'Email': 'alex.brown@example.com', 'Name': 'Alex Brown', 'Phone': '+1-555-0127', 'Address Line 1': '654 Maple Lane', 'Address Line 2': '', 'City': 'Phoenix', 'State': 'AZ', 'Postal Code': '85001', 'Country': 'US', 'Description': 'Regular customer' }
+        ],
+        'events': [
+          { 'Title': 'Team Meeting', 'Start': '2025-01-25 09:00', 'End': '2025-01-25 10:00', 'All Day': 'FALSE', 'Location': 'Conference Room A', 'Description': 'Weekly team standup meeting', 'URL': 'https://example.com/meeting', 'Organizer': 'admin@company.com' },
+          { 'Title': 'Product Launch', 'Start': '2025-01-30', 'End': '2025-01-30', 'All Day': 'TRUE', 'Location': 'San Francisco', 'Description': 'Company-wide product launch event', 'URL': 'https://example.com/launch', 'Organizer': 'events@company.com' },
+          { 'Title': 'Client Presentation', 'Start': '2025-02-05 14:00', 'End': '2025-02-05 15:30', 'All Day': 'FALSE', 'Location': 'Zoom', 'Description': 'Quarterly business review with client', 'URL': 'https://zoom.us/j/123456789', 'Organizer': 'sales@company.com' },
+          { 'Title': 'Company Holiday', 'Start': '2025-02-17', 'End': '2025-02-17', 'All Day': 'TRUE', 'Location': '', 'Description': 'Presidents Day - Office Closed', 'URL': '', 'Organizer': 'hr@company.com' },
+          { 'Title': 'Workshop: React Training', 'Start': '2025-02-20 10:00', 'End': '2025-02-20 16:00', 'All Day': 'FALSE', 'Location': 'Training Room B', 'Description': 'Full-day React development workshop', 'URL': 'https://example.com/training', 'Organizer': 'training@company.com' }
         ]
       };
 
@@ -260,19 +269,48 @@ export default function MapperComponent() {
     }
   }, [mapping, validateMapping]);
 
-  const downloadMappedCSV = useCallback(() => {
+  const downloadMappedFile = useCallback(() => {
     if (csvData.length === 0) return;
     
     const result = applyMapping(csvData, template, mapping);
-    const csv = Papa.unparse(result.rows);
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = csvFile ? csvFile.name.replace('.csv', '_mapped.csv') : 'mapped.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [csvData, template, mapping, transforms, csvFile]);
+    
+    if (schema === 'calendar-ics') {
+      // Generate ICS file
+      const events: ICSEvent[] = result.rows.map(row => ({
+        title: row.title || '',
+        start: row.start || '',
+        end: row.end || '',
+        duration: row.duration || '',
+        all_day: row.all_day === true || row.all_day === 'true',
+        timezone: row.timezone || 'UTC',
+        location: row.location || '',
+        description: row.description || '',
+        url: row.url || '',
+        uid: row.uid || '',
+        organizer: row.organizer || '',
+        attendees: row.attendees || '',
+      }));
+      
+      const ics = generateICS(events);
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = csvFile ? csvFile.name.replace('.csv', '.ics') : 'calendar.ics';
+      a.click();
+      URL.revokeObjectURL(url);
+    } else {
+      // Generate CSV file (for other schemas)
+      const csv = Papa.unparse(result.rows);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = csvFile ? csvFile.name.replace('.csv', '_mapped.csv') : 'mapped.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }, [csvData, template, mapping, schema, csvFile]);
 
   const downloadMapping = useCallback(() => {
     const mappingData = {
@@ -318,7 +356,9 @@ export default function MapperComponent() {
   }, [validation, schema]);
 
   const getCLICommand = useCallback(() => {
-    return `schemamap map --schema ${schema} --mapping mapping.json < input.csv > output.csv`;
+    const outputExtension = schema === 'calendar-ics' ? 'ics' : 'csv';
+    const toolName = schema === 'calendar-ics' ? 'calendarmap' : 'schemamap';
+    return `${toolName} map --schema ${schema} --mapping mapping.json < input.csv > output.${outputExtension}`;
   }, [schema]);
 
   if (!template) {
@@ -619,11 +659,11 @@ export default function MapperComponent() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <button
-                  onClick={downloadMappedCSV}
+                  onClick={downloadMappedFile}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold"
                   disabled={csvData.length === 0}
                 >
-                  Download Mapped CSV
+                  {schema === 'calendar-ics' ? 'Download Calendar ICS' : 'Download Mapped CSV'}
                 </button>
                 <button
                   onClick={downloadMapping}
@@ -670,6 +710,13 @@ export default function MapperComponent() {
                     <p>• Import customer data with address validation</p>
                     <p>• Validate email formats and contact info</p>
                     <p>• Handle international address formats</p>
+                  </>
+                )}
+                {schema === 'calendar-ics' && (
+                  <>
+                    <p>• Convert CSV events to ICS calendar format</p>
+                    <p>• Handle both timed and all-day events</p>
+                    <p>• Support timezones and recurring patterns</p>
                   </>
                 )}
               </div>
@@ -741,7 +788,8 @@ export default function MapperComponent() {
                 onClick={() => {
                   window.location.hash = `#sample=${
                     schema === 'shopify-products' ? 'products' :
-                    schema === 'shopify-inventory' ? 'inventory' : 'customers'
+                    schema === 'shopify-inventory' ? 'inventory' : 
+                    schema === 'calendar-ics' ? 'events' : 'customers'
                   }`;
                   window.location.reload();
                 }}
