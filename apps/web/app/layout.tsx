@@ -2,25 +2,25 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SchemaMap — Map messy CSVs to Shopify/Stripe in 30 seconds',
-  description: 'Drop your file, pick a template, download a clean, validated CSV. No login. Runs in your browser.',
-  keywords: ['CSV', 'Shopify', 'Stripe', 'data mapping', 'data transformation', 'no-code'],
+  title: 'CalendarMap — Convert CSV to ICS Calendar in 30 seconds',
+  description: 'Drop your CSV events, get an ICS calendar file. Works with Google Calendar & Outlook. No login. Runs in your browser.',
+  keywords: ['CSV', 'ICS', 'calendar', 'events', 'Google Calendar', 'Outlook', 'iCalendar', 'data conversion', 'no-code'],
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: 'SchemaMap — CSV Mapping Tool for Shopify & Stripe',
-    description: 'Map messy CSVs to Shopify/Stripe in 30 seconds. No login. Runs in your browser.',
-    url: 'https://schemamap.app',
-    siteName: 'SchemaMap',
+    title: 'CalendarMap — CSV to ICS Calendar Converter',
+    description: 'Convert CSV events to ICS calendar format in 30 seconds. No login. Runs in your browser.',
+    url: 'https://calendarmap.app',
+    siteName: 'CalendarMap',
     type: 'website',
   },
   twitter: {
     card: 'summary',
-    title: 'SchemaMap — CSV Mapping Tool for Shopify & Stripe',
-    description: 'Map messy CSVs to Shopify/Stripe in 30 seconds. No login. Runs in your browser.',
+    title: 'CalendarMap — CSV to ICS Calendar Converter',
+    description: 'Convert CSV events to ICS calendar format in 30 seconds. No login. Runs in your browser.',
   },
 }
 
