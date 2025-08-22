@@ -1,7 +1,7 @@
 {
-  "name": "@schemamap/engine",
+  "name": "@calendarmap/engine",
   "version": "1.0.0",
-  "description": "Core CSV mapping engine for SchemaMap",
+  "description": "Core CSV to ICS mapping engine for CalendarMap",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -11,6 +11,8 @@
     "test": "vitest"
   },
   "dependencies": {
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^2.0.0",
     "papaparse": "^5.5.3"
   },
   "devDependencies": {

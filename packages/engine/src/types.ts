@@ -9,7 +9,7 @@ export type Field = {
 };
 
 export type Template = {
-  key: 'shopify-products' | 'shopify-inventory' | 'stripe-customers';
+  key: 'shopify-products' | 'shopify-inventory' | 'stripe-customers' | 'calendar-ics';
   title: string;
   fields: Field[];
   notes: string[];

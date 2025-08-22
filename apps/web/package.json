@@ -1,5 +1,5 @@
 {
-  "name": "@schemamap/web",
+  "name": "@calendarmap/web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -11,9 +11,11 @@
     "export": "next build && next export"
   },
   "dependencies": {
-    "@schemamap/engine": "file:../../packages/engine",
+    "@calendarmap/engine": "file:../../packages/engine",
     "@stripe/stripe-js": "^7.8.0",
     "clsx": "^2.0.0",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^2.0.0",
     "lucide-react": "^0.294.0",
     "next": "^14.0.4",
     "papaparse": "^5.4.1",
