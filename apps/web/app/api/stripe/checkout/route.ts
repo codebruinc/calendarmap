@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
-});
+const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-07-30.basil',
+    })
+  : null;
 
 export async function POST(request: NextRequest) {
   try {
     console.log('Stripe checkout request received');
     
-    if (!process.env.ENABLE_STRIPE_PAYMENTS || process.env.ENABLE_STRIPE_PAYMENTS !== 'true') {
-      console.log('Stripe payments not enabled:', process.env.ENABLE_STRIPE_PAYMENTS);
+    if (!stripe || !process.env.ENABLE_STRIPE_PAYMENTS || process.env.ENABLE_STRIPE_PAYMENTS !== 'true') {
+      console.log('Stripe payments not enabled or not configured');
       return NextResponse.json(
         { error: 'Stripe payments are not enabled' },
         { status: 400 }
