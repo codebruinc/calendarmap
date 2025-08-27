@@ -48,7 +48,7 @@ export default function PricingPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900">Pricing</h1>
-          <p className="text-gray-600 mt-2">Free for most. One-off credit for large files.</p>
+          <p className="text-gray-600 mt-2">Free for most. One-off credit for large calendars.</p>
         </div>
       </header>
 
@@ -65,7 +65,7 @@ export default function PricingPage() {
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span>Process up to 2,000 rows per file</span>
+                <span>Process up to 2,000 events per file</span>
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -73,7 +73,7 @@ export default function PricingPage() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span>All schemas (Shopify, Stripe)</span>
+                <span>Full ICS calendar format support</span>
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -85,7 +85,7 @@ export default function PricingPage() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span>Download mapping files</span>
+                <span>Download ICS calendar files</span>
               </li>
             </ul>
             
@@ -93,7 +93,7 @@ export default function PricingPage() {
               href="/"
               className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg text-center block transition-colors"
             >
-              Start Mapping
+              Start Converting
             </Link>
           </div>
 
@@ -106,7 +106,7 @@ export default function PricingPage() {
             </div>
             
             <div className="text-center mb-6 mt-4">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Large File Pass</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Large Calendar Pass</h2>
               <div className="text-4xl font-bold text-blue-600 mb-2">$5</div>
               <p className="text-gray-600">One-time payment • Instant activation</p>
             </div>
@@ -114,7 +114,7 @@ export default function PricingPage() {
             <ul className="space-y-3 mb-8">
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-blue-500" />
-                <span>Process up to 250,000 rows</span>
+                <span>Process up to 250,000 events</span>
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-blue-500" />
@@ -149,7 +149,7 @@ export default function PricingPage() {
                   Processing...
                 </>
               ) : (
-                'Buy Large File Pass'
+                'Buy Large Calendar Pass'
               )}
             </button>
           </div>
@@ -206,16 +206,16 @@ export default function PricingPage() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Why is the basic version free?</h3>
               <p className="text-gray-600 text-sm">
-                We believe data mapping should be accessible to everyone. The free tier covers most small 
-                to medium business needs while being completely privacy-safe.
+                We believe calendar conversion should be accessible to everyone. The free tier covers most 
+                personal and team scheduling needs while being completely privacy-safe.
               </p>
             </div>
             
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">What happens after 24 hours?</h3>
               <p className="text-gray-600 text-sm">
-                Your large file pass expires, but you can always use the free CLI tool for unlimited 
-                processing, or purchase another pass if you prefer the web interface.
+                Your large calendar pass expires, but you can always use the free CLI tool for unlimited 
+                event processing, or purchase another pass if you prefer the web interface.
               </p>
             </div>
             
@@ -230,7 +230,7 @@ export default function PricingPage() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Can I get a refund?</h3>
               <p className="text-gray-600 text-sm">
-                Since the large file pass activates immediately and works entirely in your browser, 
+                Since the large calendar pass activates immediately and works entirely in your browser, 
                 we cannot offer refunds. Try the free version first to ensure it meets your needs.
               </p>
             </div>

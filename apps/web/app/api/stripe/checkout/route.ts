@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/pricing?canceled=true`,
       metadata: {
-        product: 'large_file_pass',
+        product: 'large_calendar_pass',
       },
     });
 

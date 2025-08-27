@@ -18,16 +18,16 @@ export default function PaymentSuccessPage() {
         id: sessionId,
         activated: Date.now(),
         expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-        maxRows: 250000
+        maxEvents: 250000
       };
       
-      localStorage.setItem('schemamap_large_file_pass', JSON.stringify(token));
+      localStorage.setItem('calendarmap_large_calendar_pass', JSON.stringify(token));
       setIsActivated(true);
     }
   }, [sessionId]);
 
   const timeRemaining = () => {
-    const token = localStorage.getItem('schemamap_large_file_pass');
+    const token = localStorage.getItem('calendarmap_large_calendar_pass');
     if (!token) return '0 hours';
     
     const parsed = JSON.parse(token);
@@ -48,7 +48,7 @@ export default function PaymentSuccessPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4 mb-4">
             <Link href="/" className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors">
-              SchemaMap
+              CalendarMap
             </Link>
             <span className="text-gray-400">/</span>
             <span className="text-xl text-gray-600">Payment Success</span>
@@ -64,7 +64,7 @@ export default function PaymentSuccessPage() {
               Payment Successful!
             </h1>
             <p className="text-xl text-gray-600">
-              Your Large File Pass has been activated
+              Your Large Calendar Pass has been activated
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export default function PaymentSuccessPage() {
                 <div className="text-center">
                   <FileText className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <div className="text-2xl font-bold text-green-600">250,000</div>
-                  <div className="text-sm text-green-700">Max rows per file</div>
+                  <div className="text-sm text-green-700">Max events per file</div>
                 </div>
                 <div className="text-center">
                   <Clock className="w-8 h-8 text-green-600 mx-auto mb-2" />
@@ -92,15 +92,15 @@ export default function PaymentSuccessPage() {
 
           <div className="space-y-4">
             <p className="text-gray-600">
-              You can now process files up to 250,000 rows for the next 24 hours on this device.
+              You can now process calendars up to 250,000 events for the next 24 hours on this device.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/map?schema=shopify-products"
+                href="/map?schema=calendar-ics"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
               >
-                Start Mapping Large Files
+                Start Converting Large Calendars
               </Link>
               <Link
                 href="/"
