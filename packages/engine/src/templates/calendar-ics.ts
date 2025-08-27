@@ -59,7 +59,7 @@ export const calendarIcsTemplate: Template = {
       required: false,
       type: 'boolean',
       transform: ['boolean'],
-      synonyms: ['allday', 'full day', 'whole day', 'all-day', 'todo el día', 'toute la journée', 'ganztägig', 'tutto il giorno'],
+      synonyms: ['all day', 'allday', 'full day', 'whole day', 'all-day', 'todo el día', 'toute la journée', 'ganztägig', 'tutto il giorno'],
     },
     {
       key: 'timezone',

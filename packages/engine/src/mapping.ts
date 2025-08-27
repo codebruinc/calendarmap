@@ -48,6 +48,19 @@ export function guessMapping(headers: string[], template: Template): GuessMappin
         const headerWords = normalizedHeader.split(/[\s_-]+/);
         const candidateWords = normalizedCandidate.split(/[\s_-]+/);
         
+        // Check for multi-word exact matches (e.g., "All Day" matches "all_day")
+        if (headerWords.length === candidateWords.length && headerWords.length > 1) {
+          const allWordsMatch = candidateWords.every((word, index) => 
+            headerWords[index] === word || levenshtein.get(headerWords[index], word) <= 1
+          );
+          if (allWordsMatch) {
+            bestMatch = header;
+            bestScore = 0;
+            bestType = 'multi-word-exact';
+            break;
+          }
+        }
+        
         // Check if any candidate word exactly matches any header word
         for (const candidateWord of candidateWords) {
           if (candidateWord.length > 2 && headerWords.includes(candidateWord)) {
