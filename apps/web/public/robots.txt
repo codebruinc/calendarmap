@@ -3,17 +3,12 @@ Allow: /
 
 # Main pages
 Allow: /map
-Allow: /map/shopify-products
-Allow: /map/shopify-inventory
-Allow: /map/stripe-customers
+Allow: /map/calendar-ics
 Allow: /docs
-Allow: /docs/shopify-products-csv-mapper
-Allow: /docs/shopify-inventory-csv-mapper
-Allow: /docs/stripe-customers-csv-mapper
 Allow: /for-ai
 Allow: /cli
 Allow: /pricing
 Allow: /privacy
 
 # Sitemap
-Sitemap: https://schemamap.app/sitemap.xml
+Sitemap: https://calendarmap.app/sitemap.xml

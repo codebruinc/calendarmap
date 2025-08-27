@@ -3,19 +3,19 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import * as Papa from 'papaparse';
-import { templates, guessMapping, applyMapping, validateRows, Template, GuessMappingResult } from '@schemamap/engine';
+import { templates, guessMapping, applyMapping, validateRows, Template, GuessMappingResult } from '@calendarmap/engine';
 
 const program = new Command();
 
 program
-  .name('schemamap')
-  .description('Map messy CSVs to clean schemas')
+  .name('calendarmap')
+  .description('Convert CSV events to ICS calendar format')
   .version('1.0.0');
 
 program
   .command('map')
   .description('Apply a mapping to transform CSV data')
-  .requiredOption('--schema <schema>', 'Target schema (shopify-products, shopify-inventory, stripe-customers)')
+  .requiredOption('--schema <schema>', 'Target schema (calendar-ics)')
   .requiredOption('--mapping <file>', 'Mapping JSON file')
   .option('--input <file>', 'Input CSV file (default: stdin)')
   .option('--output <file>', 'Output CSV file (default: stdout)')
@@ -66,7 +66,7 @@ program
 program
   .command('guess')
   .description('Generate a mapping file by guessing from CSV headers')
-  .requiredOption('--schema <schema>', 'Target schema (shopify-products, shopify-inventory, stripe-customers)')
+  .requiredOption('--schema <schema>', 'Target schema (calendar-ics)')
   .option('--input <file>', 'Input CSV file (default: stdin)')
   .option('--output <file>', 'Output mapping JSON file (default: stdout)')
   .action(async (options) => {

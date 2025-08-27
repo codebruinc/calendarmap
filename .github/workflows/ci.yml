@@ -61,10 +61,10 @@ jobs:
       run: pnpm install
     
     - name: Build engine
-      run: pnpm --filter @schemamap/engine build
+      run: pnpm --filter @calendarmap/engine build
     
     - name: Build web app
-      run: pnpm --filter @schemamap/web build
+      run: pnpm --filter @calendarmap/web build
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3

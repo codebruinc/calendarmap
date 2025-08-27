@@ -324,7 +324,7 @@ export default function MapperComponent() {
       mapping: mapping,
       transforms: transforms,
       generatedAt: new Date().toISOString(),
-      generatedBy: 'SchemaMap Web Interface'
+      generatedBy: 'CalendarMap Web Interface'
     };
     const blob = new Blob([JSON.stringify(mappingData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -357,7 +357,7 @@ export default function MapperComponent() {
 
   const getCLICommand = useCallback(() => {
     const outputExtension = schema === 'calendar-ics' ? 'ics' : 'csv';
-    const toolName = schema === 'calendar-ics' ? 'calendarmap' : 'schemamap';
+    const toolName = 'calendarmap';
     return `${toolName} map --schema ${schema} --mapping mapping.json < input.csv > output.${outputExtension}`;
   }, [schema]);
 
@@ -380,7 +380,7 @@ export default function MapperComponent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-4 mb-4">
             <Link href="/" className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors">
-              SchemaMap
+              CalendarMap
             </Link>
             <span className="text-gray-400">/</span>
             <span className="text-xl text-gray-600">{template.title} Mapper</span>

@@ -2,7 +2,7 @@ export async function GET() {
   const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: https://schemamap.app/sitemap.xml`;
+Sitemap: https://calendarmap.app/sitemap.xml`;
 
   return new Response(robotsTxt, {
     headers: {

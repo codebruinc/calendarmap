@@ -1,7 +1,7 @@
 {
-  "name": "schemamap",
+  "name": "calendarmap",
   "version": "1.0.0",
-  "description": "Map messy CSVs to Shopify/Stripe in 30 seconds",
+  "description": "Convert CSV events to ICS calendar format in 30 seconds",
   "private": true,
   "scripts": {
     "dev": "cd apps/web && npm run dev",
@@ -12,6 +12,6 @@
     "lint": "cd packages/engine && npm run lint && cd ../../apps/web && npm run lint",
     "test": "cd packages/engine && npm run test"
   },
-  "keywords": ["csv", "shopify", "stripe", "mapping", "data"],
+  "keywords": ["csv", "ics", "calendar", "events", "mapping", "data"],
   "license": "MIT"
 }
