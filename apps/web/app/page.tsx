@@ -189,9 +189,9 @@ export default function HomePage() {
             <div>
               <h4 className="text-white font-semibold mb-4">Also Try</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/map?schema=shopify-products" className="hover:text-white">Shopify Products</Link></li>
-                <li><Link href="/map?schema=shopify-inventory" className="hover:text-white">Shopify Inventory</Link></li>
-                <li><Link href="/map?schema=stripe-customers" className="hover:text-white">Stripe Customers</Link></li>
+                <li><Link href="https://schemamap.app/map?schema=shopify-products" className="hover:text-white">Shopify Products</Link></li>
+                <li><Link href="https://schemamap.app/map?schema=shopify-inventory" className="hover:text-white">Shopify Inventory</Link></li>
+                <li><Link href="https://schemamap.app/map?schema=stripe-customers" className="hover:text-white">Stripe Customers</Link></li>
               </ul>
             </div>
             
