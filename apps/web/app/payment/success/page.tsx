@@ -23,6 +23,18 @@ export default function PaymentSuccessPage() {
       
       localStorage.setItem('calendarmap_large_calendar_pass', JSON.stringify(token));
       setIsActivated(true);
+      
+      // Track successful purchase completion
+      if (typeof window !== 'undefined' && window.plausible) {
+        window.plausible('Purchase Complete', {
+          props: {
+            product: 'large_file_pass',
+            price: 5,
+            sessionId: sessionId
+          },
+          revenue: { currency: 'USD', amount: 5 }
+        });
+      }
     }
   }, [sessionId]);
 
@@ -99,6 +111,16 @@ export default function PaymentSuccessPage() {
               <Link
                 href="/map?schema=calendar-ics"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                onClick={() => {
+                  // Track conversion from success page
+                  if (typeof window !== 'undefined' && window.plausible) {
+                    window.plausible('Success Page Conversion', {
+                      props: {
+                        destination: 'calendar_mapper'
+                      }
+                    });
+                  }
+                }}
               >
                 Start Converting Large Calendars
               </Link>

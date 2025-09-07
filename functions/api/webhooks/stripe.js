@@ -49,10 +49,32 @@ export async function onRequestPost(context) {
         const session = event.data.object;
         console.log('Payment successful for session:', session.id);
         
-        // In a production app, you might want to:
-        // 1. Store payment info in database
-        // 2. Send confirmation email
-        // 3. Log analytics
+        // Track successful payment in Plausible
+        try {
+          await fetch('https://analytics.pikasim.com/api/event', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'CalendarMap-Webhook/1.0'
+            },
+            body: JSON.stringify({
+              name: 'Payment Webhook Success',
+              url: 'https://calendarmap.app/webhook/stripe',
+              domain: 'calendarmap.app',
+              props: {
+                sessionId: session.id,
+                product: session.metadata?.product || 'large_file_pass',
+                amount: session.amount_total / 100 // Convert from cents
+              },
+              revenue: {
+                currency: session.currency,
+                amount: session.amount_total / 100
+              }
+            })
+          });
+        } catch (error) {
+          console.error('Failed to track payment in Plausible:', error);
+        }
         
         break;
       }

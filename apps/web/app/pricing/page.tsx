@@ -2,10 +2,17 @@
 
 import { CheckCircle, Code, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PricingPage() {
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Track pricing page visit
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Pricing Page Visit');
+    }
+  }, []);
   
   // Show cancellation message if redirected from cancelled payment
   if (typeof window !== 'undefined') {
@@ -21,6 +28,17 @@ export default function PricingPage() {
 
   const handleBuyLargeFilePass = async () => {
     setIsLoading(true);
+    
+    // Track purchase intent
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Purchase Intent', {
+        props: {
+          product: 'large_file_pass',
+          price: 5
+        }
+      });
+    }
+    
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
@@ -34,6 +52,16 @@ export default function PricingPage() {
       }
 
       const { url } = await response.json();
+      
+      // Track redirect to Stripe
+      if (typeof window !== 'undefined' && window.plausible) {
+        window.plausible('Stripe Checkout Redirect', {
+          props: {
+            product: 'large_file_pass'
+          }
+        });
+      }
+      
       window.location.href = url;
     } catch (error) {
       console.error('Error:', error);

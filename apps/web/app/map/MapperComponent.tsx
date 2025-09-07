@@ -100,6 +100,16 @@ export default function MapperComponent() {
         const sampleType = hash.split('#sample=')[1];
         console.log('Loading sample type:', sampleType);
         
+        // Track sample data load
+        if (typeof window !== 'undefined' && window.plausible) {
+          window.plausible('Sample Data Load', {
+            props: {
+              sampleType: sampleType,
+              schema: schema
+            }
+          });
+        }
+        
         // Inline 5-row samples for instant loading
         const sampleData = {
         'products': [
@@ -198,6 +208,16 @@ export default function MapperComponent() {
       return;
     }
 
+    // Track file upload event
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('File Upload', {
+        props: {
+          fileSize: Math.round(file.size / 1024), // KB
+          schema: schema
+        }
+      });
+    }
+
     const effectiveLimit = hasLargeFilePass ? PREMIUM_FILE_LIMIT : LARGE_FILE_LIMIT;
     
     Papa.parse(file, {
@@ -213,6 +233,17 @@ export default function MapperComponent() {
         const detectedHeaders = Object.keys(data[0] || {});
         
         if (data.length > effectiveLimit) {
+          // Track large file detection
+          if (typeof window !== 'undefined' && window.plausible) {
+            window.plausible('Large File Detected', {
+              props: {
+                rowCount: data.length,
+                hasPass: hasLargeFilePass,
+                schema: schema
+              }
+            });
+          }
+          
           if (hasLargeFilePass) {
             // Even premium users have limits
             alert(`File too large. Premium limit is ${PREMIUM_FILE_LIMIT.toLocaleString()} rows. Use the CLI for unlimited processing.`);
@@ -272,6 +303,17 @@ export default function MapperComponent() {
   const downloadMappedFile = useCallback(() => {
     if (csvData.length === 0) return;
     
+    // Track the main conversion event
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Calendar Download', {
+        props: {
+          rowCount: csvData.length,
+          schema: schema,
+          isGoal: true
+        }
+      });
+    }
+    
     const result = applyMapping(csvData, template, mapping);
     
     if (schema === 'calendar-ics') {
@@ -313,6 +355,16 @@ export default function MapperComponent() {
   }, [csvData, template, mapping, schema, csvFile]);
 
   const downloadMapping = useCallback(() => {
+    // Track mapping download
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Mapping Download', {
+        props: {
+          schema: schema,
+          fieldCount: Object.keys(mapping).length
+        }
+      });
+    }
+    
     const mappingData = {
       schema: schema,
       ...(template.templateVersion && {
@@ -337,6 +389,16 @@ export default function MapperComponent() {
 
   const downloadErrorReport = useCallback(() => {
     if (!validation || validation.sampleErrors.length === 0) return;
+    
+    // Track error report download
+    if (typeof window !== 'undefined' && window.plausible) {
+      window.plausible('Error Report Download', {
+        props: {
+          errorCount: validation.errorCount,
+          schema: schema
+        }
+      });
+    }
     
     const errorData = validation.sampleErrors.map(error => ({
       'Row': error.row,
@@ -672,7 +734,17 @@ export default function MapperComponent() {
                   Download Mapping JSON
                 </button>
                 <button
-                  onClick={() => navigator.clipboard.writeText(getCLICommand())}
+                  onClick={() => {
+                    navigator.clipboard.writeText(getCLICommand());
+                    // Track CLI command copy
+                    if (typeof window !== 'undefined' && window.plausible) {
+                      window.plausible('CLI Command Copy', {
+                        props: {
+                          schema: schema
+                        }
+                      });
+                    }
+                  }}
                   className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-lg font-semibold"
                 >
                   Copy CLI Command
@@ -820,6 +892,15 @@ export default function MapperComponent() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(getCLICommand());
+                  // Track CLI command copy from modal
+                  if (typeof window !== 'undefined' && window.plausible) {
+                    window.plausible('CLI Command Copy', {
+                      props: {
+                        schema: schema,
+                        source: 'large_file_modal'
+                      }
+                    });
+                  }
                   alert('CLI command copied to clipboard!');
                 }}
                 className="text-green-700 hover:text-green-900 text-sm font-medium"
