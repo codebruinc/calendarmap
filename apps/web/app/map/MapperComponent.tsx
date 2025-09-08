@@ -77,8 +77,16 @@ export default function MapperComponent() {
     const checkPass = () => {
       const isValid = hasValidLargeFilePass();
       const info = getLargeFilePassInfo();
+      
+      // Clean up expired tokens after 48 hours to avoid confusion
+      if (info && !info.isValid && (Date.now() - info.expires) > (48 * 60 * 60 * 1000)) {
+        localStorage.removeItem('calendarmap_large_file_pass');
+        setLargeFilePassInfo(null);
+      } else {
+        setLargeFilePassInfo(info);
+      }
+      
       setHasLargeFilePass(isValid);
-      setLargeFilePassInfo(info);
     };
 
     checkPass();
@@ -246,9 +254,22 @@ export default function MapperComponent() {
             });
           }
           
+          // Check if user had a pass but it expired
+          const passInfo = getLargeFilePassInfo();
+          if (passInfo && !passInfo.isValid) {
+            alert('⏰ Your 24-hour Large File Pass has expired! Purchase a new pass or use the free CLI for unlimited processing.');
+            setShowLargeFileModal(true);
+            return;
+          }
+          
           if (hasLargeFilePass) {
             // Even premium users have limits
-            alert(`File too large. Premium limit is ${PREMIUM_FILE_LIMIT.toLocaleString()} rows. Use the CLI for unlimited processing.`);
+            if (data.length > PREMIUM_FILE_LIMIT) {
+              alert(`File too large. Premium limit is ${PREMIUM_FILE_LIMIT.toLocaleString()} rows. Use the CLI for unlimited processing.`);
+            } else {
+              // This shouldn't happen, but just in case
+              alert('An error occurred with your Large File Pass. Please try again or contact support.');
+            }
           } else {
             setShowLargeFileModal(true);
           }
@@ -463,6 +484,21 @@ export default function MapperComponent() {
               <span className="text-green-700 font-semibold">⭐ Large File Pass Active</span>
               <span className="text-green-600">Up to {PREMIUM_FILE_LIMIT.toLocaleString()} rows</span>
               <span className="text-green-600">{largeFilePassInfo.hoursRemaining}h remaining</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Expired Pass Banner */}
+      {!hasLargeFilePass && largeFilePassInfo && !largeFilePassInfo.isValid && (
+        <div className="bg-gradient-to-r from-orange-50 to-red-50 border-b border-orange-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center justify-center gap-4 text-sm">
+              <span className="text-orange-700 font-semibold">⏰ Large File Pass Expired</span>
+              <span className="text-orange-600">Free limit: {LARGE_FILE_LIMIT.toLocaleString()} rows</span>
+              <Link href="/pricing" className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs font-semibold transition-colors">
+                Renew Pass
+              </Link>
             </div>
           </div>
         </div>
@@ -891,17 +927,43 @@ export default function MapperComponent() {
       {showLargeFileModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-lg mx-4">
-            <h3 className="text-lg font-semibold mb-4">Large File Detected</h3>
-            <p className="text-gray-600 mb-4">
-              Your file has more than {LARGE_FILE_LIMIT.toLocaleString()} rows. Choose your processing option:
+            <h3 className="text-lg font-semibold mb-4">🚀 Large File Detected</h3>
+            <p className="text-gray-600 mb-6">
+              Your file has more than {LARGE_FILE_LIMIT.toLocaleString()} rows. Get instant access to process large calendars!
             </p>
             
-            {/* Free Option First */}
-            <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-4">
+            {/* Paid Option - Prioritized */}
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="font-semibold text-green-900">Option 1: Free CLI (Recommended)</h4>
-                <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">No Size Limit</span>
+                <h4 className="font-semibold text-blue-900">🌟 Instant Web Access - $5</h4>
+                <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">Recommended</span>
               </div>
+              <ul className="text-sm text-blue-800 mb-3 space-y-1">
+                <li>✅ Process up to {PREMIUM_FILE_LIMIT.toLocaleString()} rows instantly</li>
+                <li>✅ No software to install - works in your browser</li>
+                <li>✅ <strong>Valid for 24 hours from purchase</strong></li>
+                <li>✅ Secure payment via Stripe</li>
+              </ul>
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-2 mb-3">
+                <p className="text-xs text-yellow-800">
+                  <strong>⏰ 24-Hour Pass:</strong> After 24 hours, you'll need to purchase another pass or use the free CLI below for unlimited processing.
+                </p>
+              </div>
+              <Link
+                href="/pricing"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold text-sm inline-block transition-colors w-full text-center"
+              >
+                💳 Get Instant Access ($5)
+              </Link>
+            </div>
+            
+            {/* Free Option - Secondary */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-gray-700">🛠️ Free CLI Option</h4>
+                <span className="bg-gray-600 text-white text-xs px-2 py-1 rounded">No Size Limit</span>
+              </div>
+              <p className="text-sm text-gray-600 mb-3">For developers who prefer command-line tools:</p>
               <div className="bg-gray-900 text-gray-100 p-3 rounded text-sm font-mono overflow-x-auto mb-3">
                 {getCLICommand()}
               </div>
@@ -919,26 +981,10 @@ export default function MapperComponent() {
                   }
                   alert('CLI command copied to clipboard!');
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold w-full transition-colors"
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold w-full transition-colors text-sm"
               >
                 📋 Copy Command to Clipboard
               </button>
-            </div>
-            
-            {/* Paid Option */}
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
-              <h4 className="font-semibold text-gray-700 mb-2">Option 2: Web Pass ($5 for 24 hours)</h4>
-              <ul className="text-sm text-gray-600 mb-3 space-y-1">
-                <li>• Process up to {PREMIUM_FILE_LIMIT.toLocaleString()} rows in browser</li>
-                <li>• No CLI installation needed</li>
-                <li>• Instant activation on this device</li>
-              </ul>
-              <Link
-                href="/pricing"
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold text-sm inline-block transition-colors"
-              >
-                Get Web Pass
-              </Link>
             </div>
             
             <div className="flex justify-end">

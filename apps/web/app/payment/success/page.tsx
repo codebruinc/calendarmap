@@ -21,7 +21,7 @@ export default function PaymentSuccessPage() {
         maxEvents: 250000
       };
       
-      localStorage.setItem('calendarmap_large_calendar_pass', JSON.stringify(token));
+      localStorage.setItem('calendarmap_large_file_pass', JSON.stringify(token));
       setIsActivated(true);
       
       // Track successful purchase completion
@@ -39,7 +39,7 @@ export default function PaymentSuccessPage() {
   }, [sessionId]);
 
   const timeRemaining = () => {
-    const token = localStorage.getItem('calendarmap_large_calendar_pass');
+    const token = localStorage.getItem('calendarmap_large_file_pass');
     if (!token) return '0 hours';
     
     const parsed = JSON.parse(token);
