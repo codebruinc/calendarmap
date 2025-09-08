@@ -314,10 +314,9 @@ export default function MapperComponent() {
   const validateMapping = useCallback(() => {
     if (csvData.length === 0) return;
     
-    const options = dateFormat !== 'auto' ? { dateFormat } : undefined;
-    const validationResult = validateRows(csvData, template, mapping, options);
+    const validationResult = validateRows(csvData, template, mapping);
     setValidation(validationResult);
-  }, [csvData, template, mapping, dateFormat]);
+  }, [csvData, template, mapping]);
 
   useEffect(() => {
     if (Object.keys(mapping).length > 0) {
@@ -339,8 +338,7 @@ export default function MapperComponent() {
       });
     }
     
-    const options = dateFormat !== 'auto' ? { dateFormat } : undefined;
-    const result = applyMapping(csvData, template, mapping, options);
+    const result = applyMapping(csvData, template, mapping);
     
     if (schema === 'calendar-ics') {
       // Generate ICS file
@@ -582,6 +580,11 @@ export default function MapperComponent() {
                 <p className="text-sm text-gray-600 mb-4">
                   Specify how dates are formatted in your CSV to avoid ambiguity (e.g., 01/02/2025 could be Jan 2 or Feb 1)
                 </p>
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Note:</strong> Date format selection is currently UI-only. Engine integration coming soon.
+                  </p>
+                </div>
                 <div className="space-y-3">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
