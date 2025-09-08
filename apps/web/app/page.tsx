@@ -207,6 +207,16 @@ export default function HomePage() {
           </div>
           
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
+            <p className="mb-2">
+              Built by{' '}
+              <a 
+                href="https://codebru.com" 
+                target="_blank"
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                codebru.com
+              </a>
+            </p>
             <p>&copy; 2025 CalendarMap. MIT Licensed. Built for the community.</p>
           </div>
         </div>

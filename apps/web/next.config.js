@@ -14,16 +14,9 @@ const nextConfig = {
   },
   experimental: {
     missingSuspenseWithCSRBailout: false,
-  },
-  
-  // Cloudflare Pages compatibility
-  ...(process.env.CF_PAGES && {
     // Enable runtime if using Cloudflare Pages with Functions
-    experimental: {
-      ...nextConfig.experimental,
-      runtime: 'edge',
-    },
-  }),
+    ...(process.env.CF_PAGES && { runtime: 'edge' }),
+  },
 }
 
 module.exports = nextConfig
