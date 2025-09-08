@@ -71,6 +71,7 @@ export default function MapperComponent() {
   const [hasLargeFilePass, setHasLargeFilePass] = useState(false);
   const [largeFilePassInfo, setLargeFilePassInfo] = useState<any>(null);
   const [defaultTimezone, setDefaultTimezone] = useState<string>('UTC');
+  const [dateFormat, setDateFormat] = useState<'auto' | 'dd/mm/yyyy' | 'mm/dd/yyyy'>('auto');
 
   // Check for large file pass on mount and interval
   useEffect(() => {
@@ -313,9 +314,10 @@ export default function MapperComponent() {
   const validateMapping = useCallback(() => {
     if (csvData.length === 0) return;
     
-    const validationResult = validateRows(csvData, template, mapping);
+    const options = dateFormat !== 'auto' ? { dateFormat } : undefined;
+    const validationResult = validateRows(csvData, template, mapping, options);
     setValidation(validationResult);
-  }, [csvData, template, mapping]);
+  }, [csvData, template, mapping, dateFormat]);
 
   useEffect(() => {
     if (Object.keys(mapping).length > 0) {
@@ -337,7 +339,8 @@ export default function MapperComponent() {
       });
     }
     
-    const result = applyMapping(csvData, template, mapping);
+    const options = dateFormat !== 'auto' ? { dateFormat } : undefined;
+    const result = applyMapping(csvData, template, mapping, options);
     
     if (schema === 'calendar-ics') {
       // Generate ICS file
@@ -569,6 +572,68 @@ export default function MapperComponent() {
                   onChange={setDefaultTimezone}
                   showPreview={true}
                 />
+              </div>
+            )}
+
+            {/* Date Format Selector for calendar-ics */}
+            {schema === 'calendar-ics' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <h3 className="text-lg font-semibold mb-4">Date Format</h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Specify how dates are formatted in your CSV to avoid ambiguity (e.g., 01/02/2025 could be Jan 2 or Feb 1)
+                </p>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dateFormat"
+                      value="auto"
+                      checked={dateFormat === 'auto'}
+                      onChange={(e) => setDateFormat('auto')}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="font-medium">Auto-detect</span>
+                      <span className="text-sm text-gray-500 ml-2">(Default - may guess incorrectly for ambiguous dates)</span>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dateFormat"
+                      value="mm/dd/yyyy"
+                      checked={dateFormat === 'mm/dd/yyyy'}
+                      onChange={(e) => setDateFormat('mm/dd/yyyy')}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="font-medium">MM/DD/YYYY</span>
+                      <span className="text-sm text-gray-500 ml-2">(US format - e.g., 03/15/2025 = March 15)</span>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="dateFormat"
+                      value="dd/mm/yyyy"
+                      checked={dateFormat === 'dd/mm/yyyy'}
+                      onChange={(e) => setDateFormat('dd/mm/yyyy')}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <div>
+                      <span className="font-medium">DD/MM/YYYY</span>
+                      <span className="text-sm text-gray-500 ml-2">(European format - e.g., 15/03/2025 = March 15)</span>
+                    </div>
+                  </label>
+                </div>
+                {dateFormat !== 'auto' && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Note:</strong> All dates in your CSV must use the {dateFormat === 'mm/dd/yyyy' ? 'MM/DD/YYYY' : 'DD/MM/YYYY'} format. 
+                      Mixed formats will cause validation errors.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

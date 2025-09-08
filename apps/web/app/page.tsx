@@ -202,6 +202,7 @@ export default function HomePage() {
                 <li><Link href="/self-host" className="hover:text-white">Self-Host</Link></li>
                 <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
                 <li><Link href="/for-ai" className="hover:text-white">For AI</Link></li>
+                <li><Link href="/ics-tools" className="hover:text-white">Advanced</Link></li>
               </ul>
             </div>
           </div>
