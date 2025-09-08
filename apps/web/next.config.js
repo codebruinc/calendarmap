@@ -14,8 +14,6 @@ const nextConfig = {
   },
   experimental: {
     missingSuspenseWithCSRBailout: false,
-    // Enable runtime if using Cloudflare Pages with Functions
-    ...(process.env.CF_PAGES && { runtime: 'edge' }),
   },
 }
 
