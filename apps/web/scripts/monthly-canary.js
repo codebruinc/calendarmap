@@ -13,8 +13,8 @@
  * Usage: node scripts/monthly-canary.js
  * Environment Variables:
  *   SMTP_HOST - SMTP server host
- *   SMTP_PORT - SMTP server port (default: 587)
- *   SMTP_USER - SMTP username
+ *   SMTP_PORT - SMTP server port (default: 465)
+ *   SMTP_USER - SMTP username  
  *   SMTP_PASS - SMTP password
  *   ALERT_EMAIL - Email address to send alerts to
  */
@@ -290,7 +290,7 @@ class CanaryTest {
       return;
     }
     
-    const subject = '✅ CalendarMap Monthly Canary - Success';
+    const subject = '✅ CalendarMap.app Monthly Canary Test - All Systems Operational';
     const body = `
 CalendarMap Monthly Canary Test - SUCCESS
 
@@ -324,7 +324,7 @@ All systems operating normally.
       return;
     }
     
-    const subject = '❌ CalendarMap Monthly Canary - FAILURE';
+    const subject = '🚨 CalendarMap.app Monthly Canary Test - SERVICE DEGRADED - Action Required';
     const body = `
 CalendarMap Monthly Canary Test - FAILURE
 
@@ -365,10 +365,10 @@ ACTION REQUIRED: Please investigate the CalendarMap service.
 
   async sendEmail(subject, body) {
     try {
-      const transporter = nodemailer.createTransporter({
+      const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT || 587,
-        secure: false,
+        port: process.env.SMTP_PORT || 465,
+        secure: true,
         auth: {
           user: process.env.SMTP_USER,
           pass: process.env.SMTP_PASS,
