@@ -34,6 +34,10 @@ export function generateICS(events: ICSEvent[], defaultTimezone = 'UTC'): string
     const uid = event.uid || generateUID(event.title, event.start, index);
     lines.push(`UID:${uid}`);
     
+    // DTSTAMP (required) - when this VEVENT was created
+    const now = formatDateTime(new Date().toISOString(), 'UTC');
+    lines.push(`DTSTAMP:${now}Z`);
+    
     // Title (required)
     lines.push(`SUMMARY:${escapeText(event.title)}`);
     
@@ -48,6 +52,12 @@ export function generateICS(events: ICSEvent[], defaultTimezone = 'UTC'): string
       if (event.end) {
         const endDate = formatDateOnly(event.end);
         lines.push(`DTEND;VALUE=DATE:${endDate}`);
+      } else {
+        // For all-day events, DTEND should be the next day
+        const nextDay = new Date(event.start);
+        nextDay.setDate(nextDay.getDate() + 1);
+        const endDate = formatDateOnly(nextDay.toISOString());
+        lines.push(`DTEND;VALUE=DATE:${endDate}`);
       }
     } else {
       const startDateTime = formatDateTime(event.start, tz);
@@ -58,6 +68,9 @@ export function generateICS(events: ICSEvent[], defaultTimezone = 'UTC'): string
         lines.push(`DTEND;TZID=${tz}:${endDateTime}`);
       } else if (event.duration) {
         lines.push(`DURATION:${event.duration}`);
+      } else {
+        // Default to 1 hour duration if no end time specified
+        lines.push(`DURATION:PT1H`);
       }
     }
     
@@ -87,8 +100,7 @@ export function generateICS(events: ICSEvent[], defaultTimezone = 'UTC'): string
       });
     }
     
-    // Created/Modified timestamps
-    const now = formatDateTime(new Date().toISOString(), 'UTC');
+    // Created/Modified timestamps (reuse the now variable from DTSTAMP)
     lines.push(`CREATED:${now}Z`);
     lines.push(`LAST-MODIFIED:${now}Z`);
     

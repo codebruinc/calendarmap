@@ -2,8 +2,10 @@ export * from './types';
 export * from './mapping';
 export * from './templates';
 export * from './ics-generator';
+export * from './ics-validator';
 
 // Re-export main functions for convenience
 export { guessMapping, validateRows, applyMapping } from './mapping';
 export { templates } from './templates';
 export { generateICS } from './ics-generator';
+export { validateICSEvents, formatValidationReport } from './ics-validator';

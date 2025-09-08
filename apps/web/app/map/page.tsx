@@ -4,6 +4,24 @@ import MapperComponent from './MapperComponent';
 export const metadata = {
   title: 'CSV to ICS Converter — CalendarMap',
   description: 'Convert your CSV event files to ICS calendar format with smart field mapping and validation.',
+  openGraph: {
+    title: 'CSV to ICS Converter — CalendarMap',
+    description: 'Convert your CSV event files to ICS calendar format with smart field mapping and validation.',
+    url: 'https://calendarmap.app/map/calendar-ics',
+    type: 'website',
+    images: [{
+      url: 'https://calendarmap.app/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'CalendarMap CSV to ICS Converter',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CSV to ICS Converter — CalendarMap',
+    description: 'Convert your CSV event files to ICS calendar format with smart field mapping and validation.',
+    images: ['https://calendarmap.app/og-image.png'],
+  },
 };
 
 function MapperFallback() {

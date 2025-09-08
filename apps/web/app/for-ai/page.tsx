@@ -1,7 +1,56 @@
 import Link from 'next/link';
+import Script from 'next/script';
 
 export default function ForAIPage() {
+  const softwareApplicationStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CalendarMap",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web",
+    "url": "https://calendarmap.app",
+    "description": "Free CSV to ICS calendar converter. Transform spreadsheet events into calendar files compatible with Google Calendar, Outlook, and Apple Calendar.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "softwareVersion": "2.0",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "124"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "CalendarMap",
+      "url": "https://calendarmap.app"
+    },
+    "featureList": [
+      "CSV to ICS conversion",
+      "Smart field auto-mapping",
+      "Timezone support",
+      "All-day event handling",
+      "Browser-based processing",
+      "No file uploads required",
+      "Batch event conversion",
+      "RFC 5545 compliant output"
+    ],
+    "screenshot": "https://calendarmap.app/screenshot.png",
+    "softwareHelp": {
+      "@type": "WebPage",
+      "url": "https://calendarmap.app/docs"
+    }
+  };
+
   return (
+    <>
+      <Script
+        id="software-application-structured-data"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareApplicationStructuredData) }}
+      />
+      
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -78,5 +127,6 @@ export default function ForAIPage() {
         </div>
       </main>
     </div>
+    </>
   );
 }

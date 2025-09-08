@@ -48,7 +48,12 @@ export default function PricingPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create checkout session');
+        const errorData = await response.json();
+        if (response.status === 400 && errorData.error === 'Stripe payments are not enabled') {
+          alert('Payments are temporarily unavailable. Please use the free CLI tool for large files.');
+          return;
+        }
+        throw new Error(errorData.error || 'Failed to create checkout session');
       }
 
       const { url } = await response.json();
@@ -65,7 +70,7 @@ export default function PricingPage() {
       window.location.href = url;
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to start checkout process. Please try again.');
+      alert('Failed to start checkout process. Please try the free CLI tool or try again later.');
     } finally {
       setIsLoading(false);
     }

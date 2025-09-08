@@ -16,6 +16,7 @@ import {
   ICSEvent
 } from '@calendarmap/engine';
 import Link from 'next/link';
+import TimezonePicker from '../../components/TimezonePicker';
 
 const LARGE_FILE_LIMIT = 2000;
 const PREMIUM_FILE_LIMIT = 250000;
@@ -69,6 +70,7 @@ export default function MapperComponent() {
   const [transforms, setTransforms] = useState<Record<string, string[]>>({});
   const [hasLargeFilePass, setHasLargeFilePass] = useState(false);
   const [largeFilePassInfo, setLargeFilePassInfo] = useState<any>(null);
+  const [defaultTimezone, setDefaultTimezone] = useState<string>('UTC');
 
   // Check for large file pass on mount and interval
   useEffect(() => {
@@ -324,7 +326,7 @@ export default function MapperComponent() {
         end: row.end || '',
         duration: row.duration || '',
         all_day: row.all_day === true || row.all_day === 'true',
-        timezone: row.timezone || 'UTC',
+        timezone: row.timezone || defaultTimezone,  // Use defaultTimezone if no per-row override
         location: row.location || '',
         description: row.description || '',
         url: row.url || '',
@@ -333,7 +335,7 @@ export default function MapperComponent() {
         attendees: row.attendees || '',
       }));
       
-      const ics = generateICS(events);
+      const ics = generateICS(events, defaultTimezone);
       const blob = new Blob([ics], { type: 'text/calendar' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -522,6 +524,17 @@ export default function MapperComponent() {
                 </div>
               </div>
             </div>
+
+            {/* Timezone Picker for calendar-ics */}
+            {schema === 'calendar-ics' && (
+              <div className="bg-white rounded-lg shadow p-6">
+                <TimezonePicker 
+                  value={defaultTimezone}
+                  onChange={setDefaultTimezone}
+                  showPreview={true}
+                />
+              </div>
+            )}
 
             {/* Template specification info */}
             {template.templateVersion && (
@@ -884,9 +897,12 @@ export default function MapperComponent() {
             </p>
             
             {/* Free Option First */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <h4 className="font-semibold text-green-900 mb-2">🆓 Free: Run this CLI command (no size limit)</h4>
-              <div className="bg-gray-900 text-gray-100 p-3 rounded text-sm font-mono overflow-x-auto mb-2">
+            <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-green-900">Option 1: Free CLI (Recommended)</h4>
+                <span className="bg-green-600 text-white text-xs px-2 py-1 rounded">No Size Limit</span>
+              </div>
+              <div className="bg-gray-900 text-gray-100 p-3 rounded text-sm font-mono overflow-x-auto mb-3">
                 {getCLICommand()}
               </div>
               <button
@@ -903,46 +919,36 @@ export default function MapperComponent() {
                   }
                   alert('CLI command copied to clipboard!');
                 }}
-                className="text-green-700 hover:text-green-900 text-sm font-medium"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold w-full transition-colors"
               >
-                📋 Copy Command
+                📋 Copy Command to Clipboard
               </button>
             </div>
             
             {/* Paid Option */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <h4 className="font-semibold text-blue-900 mb-2">💳 Or web pass $5 (24h on this device)</h4>
-              <ul className="text-sm text-blue-800 mb-3 space-y-1">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-gray-700 mb-2">Option 2: Web Pass ($5 for 24 hours)</h4>
+              <ul className="text-sm text-gray-600 mb-3 space-y-1">
                 <li>• Process up to {PREMIUM_FILE_LIMIT.toLocaleString()} rows in browser</li>
-                <li>• No CLI needed</li>
-                <li>• Instant activation</li>
+                <li>• No CLI installation needed</li>
+                <li>• Instant activation on this device</li>
               </ul>
               <Link
                 href="/pricing"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold text-sm inline-block transition-colors"
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-semibold text-sm inline-block transition-colors"
               >
                 Get Web Pass
               </Link>
             </div>
             
-            <div className="flex gap-3">
-              <Link
-                href="/cli"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold flex-1 text-center"
-              >
-                Get CLI Tool
-              </Link>
+            <div className="flex justify-end">
               <button
                 onClick={() => setShowLargeFileModal(false)}
-                className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded font-semibold"
+                className="text-gray-500 hover:text-gray-700 text-sm"
               >
-                Cancel
+                Close
               </button>
             </div>
-            
-            <p className="text-xs text-gray-500 mt-4">
-              Alternative: Purchase a one-off browser pass ($5) for 24h unlimited processing.
-            </p>
           </div>
         </div>
       )}

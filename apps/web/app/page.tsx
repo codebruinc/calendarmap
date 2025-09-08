@@ -37,13 +37,13 @@ export default function HomePage() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Link 
-              href="/map?schema=calendar-ics"
+              href="/map/calendar-ics"
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg flex items-center gap-2 transition-colors"
             >
               Open CSV → ICS Converter <ArrowRight className="w-5 h-5" />
             </Link>
             <Link 
-              href="/map?schema=calendar-ics#sample=events"
+              href="/map/calendar-ics#sample=events"
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg flex items-center gap-2 transition-colors"
             >
               Try with Sample Events <Calendar className="w-5 h-5" />
@@ -157,7 +157,7 @@ export default function HomePage() {
             No signup required. Your data never leaves your browser.
           </p>
           <Link 
-            href="/map?schema=calendar-ics"
+            href="/map/calendar-ics"
             className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg inline-flex items-center gap-2 transition-colors"
           >
             Start Converting Now <ArrowRight className="w-5 h-5" />
@@ -179,7 +179,7 @@ export default function HomePage() {
             <div>
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/map?schema=calendar-ics" className="hover:text-white">Converter</Link></li>
+                <li><Link href="/map/calendar-ics" className="hover:text-white">Converter</Link></li>
                 <li><Link href="/docs" className="hover:text-white">Documentation</Link></li>
                 <li><Link href="/cli" className="hover:text-white">CLI Tool</Link></li>
                 <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>

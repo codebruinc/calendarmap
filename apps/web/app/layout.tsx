@@ -16,11 +16,18 @@ export const metadata: Metadata = {
     url: 'https://calendarmap.app',
     siteName: 'CalendarMap',
     type: 'website',
+    images: [{
+      url: 'https://calendarmap.app/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'CalendarMap - CSV to ICS Converter',
+    }],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'CalendarMap — CSV to ICS Calendar Converter',
     description: 'Convert CSV events to ICS calendar format in 30 seconds. No login. Runs in your browser.',
+    images: ['https://calendarmap.app/og-image.png'],
   },
 }
 

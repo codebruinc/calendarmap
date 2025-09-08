@@ -24,6 +24,11 @@ export async function GET() {
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>${baseUrl}/docs/csv-to-ics-converter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>${baseUrl}/for-ai</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

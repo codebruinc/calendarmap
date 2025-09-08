@@ -10,8 +10,8 @@ Convert CSV events to ICS calendar format in 30 seconds. No login. Runs in your 
 **Web App:** [calendarmap.app](https://calendarmap.app)
 
 **Direct Links:**
-- [CSV to ICS Converter](https://calendarmap.app/map?schema=calendar-ics)
-- [Try with Sample Events](https://calendarmap.app/map?schema=calendar-ics#sample=events)
+- [CSV to ICS Converter](https://calendarmap.app/map/calendar-ics)
+- [Try with Sample Events](https://calendarmap.app/map/calendar-ics#sample=events)
 
 **CLI:**
 ```bash

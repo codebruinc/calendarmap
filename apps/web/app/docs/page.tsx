@@ -1,6 +1,29 @@
 import Link from 'next/link';
 import { ArrowLeft, Calendar, Clock, MapPin, FileText } from 'lucide-react';
 
+export const metadata = {
+  title: 'Documentation — CalendarMap',
+  description: 'Learn how to convert CSV files to ICS calendar format. Complete guide with examples and troubleshooting.',
+  openGraph: {
+    title: 'Documentation — CalendarMap',
+    description: 'Learn how to convert CSV files to ICS calendar format. Complete guide with examples and troubleshooting.',
+    url: 'https://calendarmap.app/docs',
+    type: 'website',
+    images: [{
+      url: 'https://calendarmap.app/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'CalendarMap Documentation',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Documentation — CalendarMap',
+    description: 'Learn how to convert CSV files to ICS calendar format. Complete guide with examples and troubleshooting.',
+    images: ['https://calendarmap.app/og-image.png'],
+  },
+};
+
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
@@ -17,6 +40,20 @@ export default function DocsPage() {
           <h1 className="text-3xl font-bold text-gray-900 mb-8">
             CalendarMap Documentation
           </h1>
+
+          {/* Step-by-step Guide Link */}
+          <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="font-semibold text-blue-900 mb-2">📘 Step-by-Step Guide</h3>
+            <p className="text-blue-800 mb-3">
+              New to CalendarMap? Follow our detailed guide for converting CSV to ICS format.
+            </p>
+            <Link 
+              href="/docs/csv-to-ics-converter"
+              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              View CSV to ICS Converter Guide →
+            </Link>
+          </div>
 
           {/* Quick Start */}
           <section className="mb-12">
@@ -151,7 +188,7 @@ Client Workshop,2025-09-20,2:00 PM,2025-09-20,5:00 PM,Zoom Meeting,Design worksh
             </div>
             <div className="mt-4">
               <Link 
-                href="/map?schema=calendar-ics#sample=events"
+                href="/map/calendar-ics#sample=events"
                 className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
               >
                 <FileText className="w-4 h-4" />
