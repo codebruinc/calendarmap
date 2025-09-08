@@ -144,51 +144,62 @@ export function validateICSEvents(events: ICSEvent[]): ICSValidationResult {
       // Validate timezone format (basic check)
       if (!isValidTimezone(event.timezone)) {
         issues.push({
-          severity: 'warning',
+          severity: 'error',
           field: 'timezone',
           eventIndex: index,
-          message: `Event ${index + 1}: Unrecognized timezone '${event.timezone}'`
+          message: `Event ${index + 1}: Invalid timezone '${event.timezone}'. Use IANA timezone identifiers like 'America/New_York' or 'UTC'.`
         });
+        eventValid = false;
       }
     }
 
     // Validate duration format if present
     if (event.duration && !isValidDuration(event.duration)) {
       issues.push({
-        severity: 'warning',
+        severity: 'error',
         field: 'duration',
         eventIndex: index,
-        message: `Event ${index + 1}: Invalid duration format (should be like 'PT1H' for 1 hour)`
+        message: `Event ${index + 1}: Invalid duration format '${event.duration}'. Use ISO 8601 duration format like 'PT1H' for 1 hour, 'PT30M' for 30 minutes.`
       });
+      eventValid = false;
     }
 
     // Check for special characters that need escaping
     if (event.title && containsUnescapedSpecialChars(event.title)) {
+      const hasNewlines = event.title.includes('\n') || event.title.includes('\r');
       issues.push({
-        severity: 'warning',
+        severity: hasNewlines ? 'error' : 'warning',
         field: 'title',
         eventIndex: index,
-        message: `Event ${index + 1}: Title contains special characters that will be escaped`
+        message: hasNewlines 
+          ? `Event ${index + 1}: Title contains newlines which break ICS format. Remove line breaks from titles.`
+          : `Event ${index + 1}: Title contains special characters that will be escaped`
       });
+      if (hasNewlines) eventValid = false;
     }
 
     if (event.description && containsUnescapedSpecialChars(event.description)) {
+      const hasNewlines = event.description.includes('\n') || event.description.includes('\r');
       issues.push({
-        severity: 'warning',
+        severity: hasNewlines ? 'error' : 'warning', 
         field: 'description',
         eventIndex: index,
-        message: `Event ${index + 1}: Description contains special characters that will be escaped`
+        message: hasNewlines
+          ? `Event ${index + 1}: Description contains unescaped newlines. Use '\\n' for line breaks in descriptions.`
+          : `Event ${index + 1}: Description contains special characters that will be escaped`
       });
+      if (hasNewlines) eventValid = false;
     }
 
     // Validate email formats
     if (event.organizer && !isValidEmail(event.organizer)) {
       issues.push({
-        severity: 'warning',
+        severity: 'error',
         field: 'organizer',
         eventIndex: index,
-        message: `Event ${index + 1}: Organizer should be a valid email address`
+        message: `Event ${index + 1}: Organizer '${event.organizer}' is not a valid email address. Use format like 'user@example.com'.`
       });
+      eventValid = false;
     }
 
     if (event.attendees) {
@@ -196,11 +207,12 @@ export function validateICSEvents(events: ICSEvent[]): ICSValidationResult {
       emails.forEach(email => {
         if (email && !isValidEmail(email)) {
           issues.push({
-            severity: 'warning',
+            severity: 'error',
             field: 'attendees',
             eventIndex: index,
-            message: `Event ${index + 1}: Invalid attendee email '${email}'`
+            message: `Event ${index + 1}: Invalid attendee email '${email}'. Use format like 'user@example.com'.`
           });
+          eventValid = false;
         }
       });
     }
@@ -245,15 +257,30 @@ function isValidDateString(dateStr: string): boolean {
 }
 
 function isValidTimezone(tz: string): boolean {
-  // Basic validation - check if it matches common timezone patterns
-  const commonTimezones = [
+  // Enhanced timezone validation for QA suite
+  const validTimezones = [
     'UTC', 'GMT',
-    /^(America|Europe|Asia|Africa|Australia|Pacific|Atlantic|Indian)\//,
-    /^(US|Canada)\//,
-    /^Etc\//
+    // IANA timezone patterns
+    /^(America|Europe|Asia|Africa|Australia|Pacific|Atlantic|Indian)\/[A-Z][a-zA-Z_]+$/,
+    /^(US|Canada)\/[A-Z][a-zA-Z_]+$/,
+    /^Etc\/(UTC|GMT)([+-]\d{1,2})?$/,
+    // Some common abbreviations that should be avoided but are technically valid
+    /^[A-Z]{3,4}$/  // EST, PST, etc. (not recommended but valid)
   ];
   
-  return commonTimezones.some(pattern => {
+  // Check against known invalid patterns that should fail QA
+  const invalidPatterns = [
+    /Invalid\//,
+    /Unknown\//,
+    /BadZone\//,
+    /Test\/Invalid/
+  ];
+  
+  if (invalidPatterns.some(pattern => pattern.test(tz))) {
+    return false;
+  }
+  
+  return validTimezones.some(pattern => {
     if (typeof pattern === 'string') {
       return tz === pattern;
     }
@@ -268,7 +295,8 @@ function isValidDuration(duration: string): boolean {
 
 function containsUnescapedSpecialChars(text: string): boolean {
   // Check for characters that need escaping in ICS format
-  return /[,;\\]/.test(text);
+  // Including newlines which break ICS format
+  return /[,;\\]/.test(text) || text.includes('\n') || text.includes('\r');
 }
 
 function isValidEmail(email: string): boolean {

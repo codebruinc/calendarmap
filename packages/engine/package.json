@@ -13,6 +13,7 @@
     "dev": "tsup --watch",
     "lint": "tsc --noEmit",
     "test": "vitest",
+    "test:qa": "node -p \"const { runQASuite, formatQAReport, runRoundTripTest, goldenCases } = require('./dist/index.js'); [formatQAReport(runQASuite()), '\\n🔄 Round-Trip: ' + goldenCases.map(t => runRoundTripTest(t.events).passed ? '✅' : '❌').join(' ') + (goldenCases.every(t => runRoundTripTest(t.events).passed) ? ' All stable!' : ' Some unstable!')].join('\\n')\"",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
