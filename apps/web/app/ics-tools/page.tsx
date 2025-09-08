@@ -28,7 +28,7 @@ export default function ICSToolsPage() {
     const events: any[] = [];
     
     // Simple ICS parser - extract events
-    const eventMatches = content.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/g);
+    const eventMatches = Array.from(content.matchAll(/BEGIN:VEVENT([\s\S]*?)END:VEVENT/g));
     
     for (const match of eventMatches) {
       const eventContent = match[0];
