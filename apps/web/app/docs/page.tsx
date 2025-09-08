@@ -41,18 +41,46 @@ export default function DocsPage() {
             CalendarMap Documentation
           </h1>
 
-          {/* Step-by-step Guide Link */}
-          <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 className="font-semibold text-blue-900 mb-2">📘 Step-by-Step Guide</h3>
-            <p className="text-blue-800 mb-3">
-              New to CalendarMap? Follow our detailed guide for converting CSV to ICS format.
-            </p>
-            <Link 
-              href="/docs/csv-to-ics-converter"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold"
-            >
-              View CSV to ICS Converter Guide →
-            </Link>
+          {/* Guide Links */}
+          <div className="mb-8 grid md:grid-cols-3 gap-4">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-semibold text-blue-900 mb-2">📘 CSV to ICS Converter</h3>
+              <p className="text-blue-700 text-sm mb-3">
+                Complete guide for converting CSV to calendar format
+              </p>
+              <Link 
+                href="/docs/csv-to-ics-converter"
+                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+              >
+                View Guide →
+              </Link>
+            </div>
+
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="font-semibold text-green-900 mb-2">📅 Import to Google Calendar</h3>
+              <p className="text-green-700 text-sm mb-3">
+                How to import your ICS file into Google Calendar
+              </p>
+              <Link 
+                href="/docs/import-ics-google-calendar"
+                className="text-green-600 hover:text-green-700 font-semibold text-sm"
+              >
+                View Guide →
+              </Link>
+            </div>
+
+            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <h3 className="font-semibold text-purple-900 mb-2">📧 Import to Outlook</h3>
+              <p className="text-purple-700 text-sm mb-3">
+                How to import your ICS file into Microsoft Outlook
+              </p>
+              <Link 
+                href="/docs/import-ics-outlook"
+                className="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+              >
+                View Guide →
+              </Link>
+            </div>
           </div>
 
           {/* Quick Start */}
