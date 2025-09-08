@@ -330,7 +330,7 @@ export default function ImportICSOutlookPage() {
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Events showing at wrong times?</h3>
                   <ul className="list-disc list-inside space-y-1 text-gray-700">
-                    <li>Check your Outlook timezone settings (File > Options > Calendar > Time zones)</li>
+                    <li>Check your Outlook timezone settings (File &gt; Options &gt; Calendar &gt; Time zones)</li>
                     <li>When creating the ICS file in CalendarMap, ensure correct timezone selection</li>
                     <li>Some events may need timezone adjustment after import</li>
                   </ul>
