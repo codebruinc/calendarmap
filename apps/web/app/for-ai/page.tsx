@@ -77,9 +77,6 @@ export default function ForAIPage() {
                 <div className="font-mono text-sm bg-gray-100 p-3 rounded mb-2">
                   https://calendarmap.app/map/calendar-ics
                 </div>
-                <div className="font-mono text-sm bg-gray-50 p-3 rounded mb-2">
-                  https://calendarmap.app/map?schema=calendar-ics
-                </div>
                 <p className="text-sm text-gray-600">For converting CSV schedules, events, and dates to ICS calendar format</p>
               </div>
             </div>

@@ -1,14 +1,19 @@
 {
   "name": "@calendarmap/engine",
   "version": "1.0.0",
-  "description": "Core CSV to ICS mapping engine for CalendarMap",
+  "description": "Core CSV to ICS mapping engine for CalendarMap with smart field detection and validation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "tsc --noEmit",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "date-fns": "^2.30.0",
@@ -21,5 +26,28 @@
     "typescript": "^5.9.2",
     "vitest": "^1.6.1"
   },
-  "license": "MIT"
+  "keywords": [
+    "csv",
+    "ics",
+    "calendar",
+    "icalendar",
+    "mapping",
+    "validation",
+    "converter",
+    "events"
+  ],
+  "homepage": "https://calendarmap.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codebruinc/calendarmap.git",
+    "directory": "packages/engine"
+  },
+  "bugs": {
+    "url": "https://github.com/codebruinc/calendarmap/issues"
+  },
+  "author": "codebru.com",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  }
 }

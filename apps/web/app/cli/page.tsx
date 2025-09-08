@@ -27,6 +27,7 @@ export default function CLIPage() {
               Installation
             </h2>
             
+            
             <div className="space-y-4">
               <div>
                 <h3 className="font-medium mb-2">Install globally with npm:</h3>
@@ -53,27 +54,24 @@ export default function CLIPage() {
             
             <div className="space-y-4">
               <div>
-                <h3 className="font-medium mb-2">Convert CSV to ICS:</h3>
+                <h3 className="font-medium mb-2">1. Generate mapping from your CSV headers:</h3>
                 <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                  calendarmap convert events.csv -o calendar.ics
+                  calendarmap guess --schema calendar-ics &lt; events.csv &gt; mapping.json
                 </div>
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Specify timezone:</h3>
+                <h3 className="font-medium mb-2">2. Convert CSV to ICS using the mapping:</h3>
                 <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                  calendarmap convert events.csv -o calendar.ics --timezone "America/New_York"
+                  calendarmap map --schema calendar-ics --mapping mapping.json &lt; events.csv &gt; calendar.ics
                 </div>
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Map specific columns:</h3>
+                <h3 className="font-medium mb-2">Alternative: Use files instead of pipes:</h3>
                 <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                  {`calendarmap convert events.csv -o calendar.ics \\
-  --title "Event Name" \\
-  --start "Start Date" \\
-  --end "End Date" \\
-  --location "Venue"`}
+                  {`calendarmap guess --schema calendar-ics --input events.csv --output mapping.json
+calendarmap map --schema calendar-ics --mapping mapping.json --input events.csv --output calendar.ics`}
                 </div>
               </div>
             </div>
@@ -85,23 +83,23 @@ export default function CLIPage() {
             
             <div className="space-y-4">
               <div className="border-l-4 border-blue-500 pl-4">
-                <h3 className="font-mono font-medium">convert</h3>
+                <h3 className="font-mono font-medium">guess</h3>
                 <p className="text-gray-600 text-sm mt-1">
-                  Convert CSV file to ICS calendar format
+                  Auto-detect CSV columns and generate mapping file
+                </p>
+              </div>
+
+              <div className="border-l-4 border-blue-500 pl-4">
+                <h3 className="font-mono font-medium">map</h3>
+                <p className="text-gray-600 text-sm mt-1">
+                  Convert CSV to ICS using field mapping
                 </p>
               </div>
 
               <div className="border-l-4 border-blue-500 pl-4">
                 <h3 className="font-mono font-medium">validate</h3>
                 <p className="text-gray-600 text-sm mt-1">
-                  Check CSV for date/time issues before conversion
-                </p>
-              </div>
-
-              <div className="border-l-4 border-blue-500 pl-4">
-                <h3 className="font-mono font-medium">preview</h3>
-                <p className="text-gray-600 text-sm mt-1">
-                  Show first few events that would be created
+                  Check CSV data for issues before conversion
                 </p>
               </div>
             </div>
@@ -116,26 +114,31 @@ export default function CLIPage() {
                 <h3 className="font-medium mb-2">Conference Schedule</h3>
                 <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                   {`# Convert conference sessions to calendar
-calendarmap convert conference.csv -o conference2025.ics \\
-  --timezone "America/Chicago"`}
+calendarmap guess --schema calendar-ics < conference.csv > conf-mapping.json
+calendarmap map --schema calendar-ics --mapping conf-mapping.json < conference.csv > conference2025.ics`}
                 </div>
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Class Schedule</h3>
-                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
-                  {`# Convert semester schedule with recurring events
-calendarmap convert classes.csv -o semester.ics \\
-  --recurring --until "2025-05-15"`}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Team Calendar</h3>
+                <h3 className="font-medium mb-2">Team Calendar with Validation</h3>
                 <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
                   {`# Process team events with validation
-calendarmap validate team-events.csv
-calendarmap convert team-events.csv -o team.ics`}
+calendarmap guess --schema calendar-ics --input team-events.csv --output team-mapping.json
+calendarmap validate --schema calendar-ics --mapping team-mapping.json --input team-events.csv
+calendarmap map --schema calendar-ics --mapping team-mapping.json --input team-events.csv --output team.ics`}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-medium mb-2">Batch Processing Script</h3>
+                <div className="bg-gray-900 text-gray-100 p-4 rounded-lg font-mono text-sm">
+                  {`#!/bin/bash
+# Convert all CSV files in directory
+for file in *.csv; do
+  name=$(basename "$file" .csv)
+  calendarmap guess --schema calendar-ics < "$file" > "$name-mapping.json"
+  calendarmap map --schema calendar-ics --mapping "$name-mapping.json" < "$file" > "$name.ics"
+done`}
                 </div>
               </div>
             </div>

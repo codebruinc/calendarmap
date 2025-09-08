@@ -8,4 +8,7 @@ export default defineConfig({
   minify: false,
   splitting: false,
   target: 'node16',
+  bundle: true,
+  external: ['commander', 'papaparse', 'fs', 'process', 'path'],
+  noExternal: ['@calendarmap/engine'],
 });

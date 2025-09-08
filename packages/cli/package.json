@@ -1,16 +1,22 @@
 {
   "name": "calendarmap-cli",
   "version": "1.0.0",
-  "description": "CLI for CalendarMap CSV to ICS conversion",
+  "description": "CLI tool to convert CSV events to ICS calendar format with smart field mapping and validation",
   "main": "dist/index.js",
   "bin": {
     "calendarmap": "bin/calendarmap"
   },
+  "files": [
+    "dist/",
+    "bin/",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "link": "npm link",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@calendarmap/engine": "file:../engine",
@@ -23,5 +29,30 @@
     "tsup": "^8.0.0",
     "typescript": "^5.3.0"
   },
-  "license": "MIT"
+  "keywords": [
+    "csv",
+    "ics",
+    "calendar",
+    "icalendar",
+    "cli",
+    "convert",
+    "events",
+    "google-calendar",
+    "outlook",
+    "apple-calendar"
+  ],
+  "homepage": "https://calendarmap.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codebruinc/calendarmap.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/codebruinc/calendarmap/issues"
+  },
+  "author": "codebru.com",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16"
+  }
 }

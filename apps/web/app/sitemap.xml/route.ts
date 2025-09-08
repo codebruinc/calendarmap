@@ -14,11 +14,6 @@ export async function GET() {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/map?schema=calendar-ics</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>${baseUrl}/docs</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

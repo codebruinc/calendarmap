@@ -3,7 +3,7 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import * as Papa from 'papaparse';
-import { templates, guessMapping, applyMapping, validateRows, Template, GuessMappingResult } from '@calendarmap/engine';
+import { templates, guessMapping, applyMapping, validateRows, generateICS, Template, GuessMappingResult } from '@calendarmap/engine';
 
 const program = new Command();
 
@@ -44,17 +44,40 @@ program
       // Apply mapping
       const result = applyMapping(parsed.data as any[], template, mapping);
       
-      // Generate output CSV
-      const outputCsv = Papa.unparse({
-        fields: result.headers,
-        data: result.rows
-      });
+      let output: string;
+      
+      if (options.schema === 'calendar-ics') {
+        // Generate ICS format for calendar schema
+        // Transform mapped data into ICSEvent objects (matching web app logic)
+        const events = result.rows.map(row => ({
+          title: row.Title || '',
+          start: row.Start || '',
+          end: row.End || '',
+          duration: row.Duration || '',
+          all_day: row['All Day'] === true || row['All Day'] === 'TRUE' || row['All Day'] === 'true',
+          timezone: row.Timezone || 'UTC',
+          location: row.Location || '',
+          description: row.Description || '',
+          url: row.URL || '',
+          uid: row.UID || '',
+          organizer: row.Organizer || '',
+          attendees: row.Attendees || '',
+        }));
+        
+        output = generateICS(events, 'UTC');
+      } else {
+        // Generate CSV for other schemas
+        output = Papa.unparse({
+          fields: result.headers,
+          data: result.rows
+        });
+      }
 
       // Write output
       if (options.output) {
-        fs.writeFileSync(options.output, outputCsv);
+        fs.writeFileSync(options.output, output);
       } else {
-        console.log(outputCsv);
+        console.log(output);
       }
 
     } catch (error) {

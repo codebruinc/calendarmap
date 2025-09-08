@@ -61,7 +61,7 @@ export async function onRequestPost(context) {
         'line_items[0][quantity]': '1',
         'success_url': `${origin}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
         'cancel_url': `${origin}/pricing?canceled=true`,
-        'metadata[product]': 'large_file_pass',
+        'metadata[product]': 'large_calendar_pass',
       }),
     });
 
