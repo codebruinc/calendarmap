@@ -2,7 +2,43 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const { pathname, searchParams } = request.nextUrl;
+
+  // Redirect legacy converter URLs to stable URLs (STABLE URLs POLICY)
+  const redirects: Record<string, string> = {
+    '/converter': '/map/calendar-ics',
+    '/csv-to-ics': '/map/calendar-ics',
+    '/convert': '/map/calendar-ics',
+    '/tool': '/map/calendar-ics',
+  };
+
+  // Check for direct redirects
+  if (redirects[pathname]) {
+    const url = request.nextUrl.clone();
+    url.pathname = redirects[pathname];
+    return NextResponse.redirect(url, 301);
+  }
+
+  // Ensure /map?schema=calendar-ics works (STABLE URL)
+  if (pathname === '/map') {
+    const schema = searchParams.get('schema');
+    if (!schema) {
+      // Default to calendar-ics if no schema specified
+      const url = request.nextUrl.clone();
+      url.pathname = '/map/calendar-ics';
+      return NextResponse.redirect(url, 302);
+    }
+    // schema=calendar-ics is a stable URL, allow it to proceed
+  }
+
   const response = NextResponse.next();
+  
+  // Add cache headers for stable URLs
+  if (pathname === '/map/calendar-ics' || 
+      pathname === '/status' || 
+      (pathname === '/map' && searchParams.get('schema') === 'calendar-ics')) {
+    response.headers.set('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
+  }
   
   // Security headers
   response.headers.set('X-Frame-Options', 'DENY');
