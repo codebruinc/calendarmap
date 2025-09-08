@@ -872,7 +872,7 @@ export default function MapperComponent() {
               <h3 className="font-semibold text-gray-900 mb-3">Resources</h3>
               <div className="space-y-2 text-sm">
                 <Link 
-                  href={`/docs/${schema}-csv-mapper`}
+                  href={schema === 'calendar-ics' ? '/docs/csv-to-ics-converter' : `/docs/${schema}-csv-mapper`}
                   className="block text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   📖 Complete Guide & Examples
