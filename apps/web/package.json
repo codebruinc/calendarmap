@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cf": "npx @cloudflare/next-on-pages",
+    "build:cf": "npm run build",
     "start": "next start",
     "lint": "next lint",
     "export": "next build && next export"
@@ -20,11 +20,9 @@
     "next": "^14.0.4",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "stripe": "^18.4.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@cloudflare/next-on-pages": "^1.13.14",
     "@types/node": "^20.10.0",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.2.45",
