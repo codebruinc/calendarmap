@@ -30,6 +30,10 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Lock files (force npm usage)
+pnpm-lock.yaml
+yarn.lock
+
 # Runtime data
 pids
 *.pid
