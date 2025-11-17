@@ -525,21 +525,18 @@ export default function MapperComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
+    <div className="bg-gray-50">
+      {/* Page Title */}
+      <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Link href="/" className="text-xl font-bold text-gray-900 hover:text-gray-700 transition-colors">
-              CalendarMap
-            </Link>
-            <span className="text-gray-400">/</span>
+          <div className="flex items-center gap-4 mb-2">
             <span className="text-xl text-gray-600">{template.title} Mapper</span>
           </div>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm">
             Map your CSV to {template.title} format with validation
           </p>
         </div>
-      </header>
+      </div>
 
       {/* Premium Banner */}
       {hasLargeFilePass && largeFilePassInfo && (

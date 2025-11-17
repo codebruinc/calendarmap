@@ -92,7 +92,7 @@ Submitted from CalendarMap.app at ${new Date().toISOString()}
       },
       body: JSON.stringify({
         from: 'CalendarMap <onboarding@resend.dev>',
-        to: ['support@codebru.com'],
+        to: ['zach@codebru.com'],
         reply_to: email,
         subject: emailSubject,
         html: emailHtml,

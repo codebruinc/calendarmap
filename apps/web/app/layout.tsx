@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 export const metadata: Metadata = {
   title: 'CalendarMap — Convert CSV to ICS Calendar in 30 seconds',
@@ -42,7 +44,11 @@ export default function RootLayout({
         <script defer data-domain="calendarmap.app" src="https://analytics.pikasim.com/js/script.file-downloads.hash.outbound-links.pageview-props.revenue.tagged-events.js"></script>
         <script dangerouslySetInnerHTML={{ __html: `window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }` }} />
       </head>
-      <body className="min-h-screen bg-gray-50">{children}</body>
+      <body className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   )
 }
