@@ -91,8 +91,8 @@ Submitted from CalendarMap.app at ${new Date().toISOString()}
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'CalendarMap <onboarding@resend.dev>',
-        to: ['zach@codebru.com'],
+        from: 'CalendarMap <contact@codebru.com>',
+        to: ['support@codebru.com'],
         reply_to: email,
         subject: emailSubject,
         html: emailHtml,
