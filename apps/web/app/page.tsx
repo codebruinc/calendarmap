@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Shield, Calendar, Zap, CheckCircle, Download } from 'lucide-react';
+import EnterpriseContactForm from '../components/EnterpriseContactForm';
 
 export default function HomePage() {
   return (
@@ -147,6 +148,64 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Enterprise Section */}
+      <section className="py-20 bg-white" id="enterprise">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              For Teams & Organizations
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Stop doing manual CSV imports. We can automate this entire workflow for your team.
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg shadow-xl p-8 text-white mb-12">
+            <div className="max-w-4xl mx-auto">
+              <h3 className="text-2xl font-bold mb-6 text-center">
+                Calendar Automation for Organizations
+              </h3>
+
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div>
+                  <h4 className="font-semibold text-lg mb-3">Who it's for:</h4>
+                  <ul className="space-y-2 text-blue-100">
+                    <li>• Universities and school districts</li>
+                    <li>• Corporate operations teams</li>
+                    <li>• Event organizers</li>
+                    <li>• HR and facilities managers</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-lg mb-3">What we build:</h4>
+                  <ul className="space-y-2 text-blue-100">
+                    <li>• Direct integration from Google Sheets or your HR system</li>
+                    <li>• Automatic sync to staff calendars</li>
+                    <li>• No more manual imports or errors</li>
+                    <li>• Recurring updates handled automatically</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-100 text-center">
+                  <strong className="text-white">Built by CodeBru</strong> — Trusted by universities and established companies since 2015
+                </p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-blue-100 mb-4">
+                  Real examples: Schools syncing class schedules, companies automating facility bookings, event teams managing recurring programs.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <EnterpriseContactForm source="homepage" />
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-blue-600">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -156,7 +215,7 @@ export default function HomePage() {
           <p className="text-xl text-blue-100 mb-8">
             No signup required. Your data never leaves your browser.
           </p>
-          <Link 
+          <Link
             href="/map/calendar-ics"
             className="bg-white hover:bg-gray-100 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg inline-flex items-center gap-2 transition-colors"
           >
@@ -208,17 +267,18 @@ export default function HomePage() {
           </div>
           
           <div className="mt-8 pt-8 border-t border-gray-800 text-center text-sm">
-            <p className="mb-2">
+            <p className="mb-3 text-base">
               Built by{' '}
-              <a 
-                href="https://codebru.com" 
+              <a
+                href="https://codebru.com"
                 target="_blank"
-                className="text-blue-400 hover:text-blue-300 underline"
+                className="text-blue-400 hover:text-blue-300 font-semibold underline"
               >
-                codebru.com
+                CodeBru
               </a>
+              {' '}— Trusted by universities and established companies since 2015
             </p>
-            <p>&copy; 2025 CalendarMap. MIT Licensed. Built for the community.</p>
+            <p className="text-gray-500">&copy; 2025 CalendarMap. MIT Licensed. Built for the community.</p>
           </div>
         </div>
       </footer>

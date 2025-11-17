@@ -17,6 +17,7 @@ import {
 } from '@calendarmap/engine';
 import Link from 'next/link';
 import TimezonePicker from '../../components/TimezonePicker';
+import EnterpriseContactForm from '../../components/EnterpriseContactForm';
 
 const LARGE_FILE_LIMIT = 2000;
 const PREMIUM_FILE_LIMIT = 250000;
@@ -72,13 +73,16 @@ export default function MapperComponent() {
   const [largeFilePassInfo, setLargeFilePassInfo] = useState<any>(null);
   const [defaultTimezone, setDefaultTimezone] = useState<string>('UTC');
   const [dateFormat, setDateFormat] = useState<'auto' | 'dd/mm/yyyy' | 'mm/dd/yyyy'>('auto');
+  const [hasDownloaded, setHasDownloaded] = useState(false);
+  const [showEnterprisePromo, setShowEnterprisePromo] = useState(false);
+  const [showPowerUserBanner, setShowPowerUserBanner] = useState(false);
 
   // Check for large file pass on mount and interval
   useEffect(() => {
     const checkPass = () => {
       const isValid = hasValidLargeFilePass();
       const info = getLargeFilePassInfo();
-      
+
       // Clean up expired tokens after 48 hours to avoid confusion
       if (info && !info.isValid && (Date.now() - info.expires) > (48 * 60 * 60 * 1000)) {
         localStorage.removeItem('calendarmap_large_file_pass');
@@ -86,7 +90,7 @@ export default function MapperComponent() {
       } else {
         setLargeFilePassInfo(info);
       }
-      
+
       setHasLargeFilePass(isValid);
     };
 
@@ -95,6 +99,60 @@ export default function MapperComponent() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Power user detection
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Track usage metrics
+    const usageKey = 'calendarmap_usage_metrics';
+    const metricsRaw = localStorage.getItem(usageKey);
+    let metrics = metricsRaw ? JSON.parse(metricsRaw) : {
+      sessionConversions: 0,
+      totalConversions: 0,
+      largestFile: 0,
+      visitDates: []
+    };
+
+    // Track visit date
+    const today = new Date().toDateString();
+    if (!metrics.visitDates.includes(today)) {
+      metrics.visitDates.push(today);
+      // Keep only last 30 days
+      if (metrics.visitDates.length > 30) {
+        metrics.visitDates = metrics.visitDates.slice(-30);
+      }
+    }
+
+    // Update largest file
+    if (csvData.length > metrics.largestFile) {
+      metrics.largestFile = csvData.length;
+    }
+
+    // Track session conversions
+    if (hasDownloaded && schema === 'calendar-ics') {
+      metrics.sessionConversions += 1;
+      metrics.totalConversions += 1;
+    }
+
+    // Save metrics
+    localStorage.setItem(usageKey, JSON.stringify(metrics));
+
+    // Determine if user is a power user
+    const isPowerUser =
+      metrics.sessionConversions >= 2 || // Multiple conversions in this session
+      metrics.largestFile >= 500 || // Large file (500+ rows)
+      metrics.visitDates.length >= 2; // Returning user
+
+    if (isPowerUser && !showPowerUserBanner && csvData.length > 0 && schema === 'calendar-ics') {
+      // Show banner after a delay
+      const timer = setTimeout(() => {
+        setShowPowerUserBanner(true);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [csvData, hasDownloaded, schema]);
 
   // Load sample CSV if specified in URL hash
   useEffect(() => {
@@ -326,7 +384,7 @@ export default function MapperComponent() {
 
   const downloadMappedFile = useCallback(() => {
     if (csvData.length === 0) return;
-    
+
     // Track the main conversion event
     if (typeof window !== 'undefined' && window.plausible) {
       window.plausible('Calendar Download', {
@@ -337,9 +395,9 @@ export default function MapperComponent() {
         }
       });
     }
-    
+
     const result = applyMapping(csvData, template, mapping);
-    
+
     if (schema === 'calendar-ics') {
       // Generate ICS file
       const events: ICSEvent[] = result.rows.map(row => ({
@@ -356,7 +414,7 @@ export default function MapperComponent() {
         organizer: row.organizer || '',
         attendees: row.attendees || '',
       }));
-      
+
       const ics = generateICS(events, defaultTimezone);
       const blob = new Blob([ics], { type: 'text/calendar' });
       const url = URL.createObjectURL(blob);
@@ -376,7 +434,13 @@ export default function MapperComponent() {
       a.click();
       URL.revokeObjectURL(url);
     }
-  }, [csvData, template, mapping, schema, csvFile]);
+
+    // Show enterprise promo after successful download
+    setHasDownloaded(true);
+    setTimeout(() => {
+      setShowEnterprisePromo(true);
+    }, 1000);
+  }, [csvData, template, mapping, schema, csvFile, defaultTimezone]);
 
   const downloadMapping = useCallback(() => {
     // Track mapping download
@@ -513,6 +577,53 @@ export default function MapperComponent() {
           </p>
         </div>
       </div>
+
+      {/* Power User Banner */}
+      {showPowerUserBanner && schema === 'calendar-ics' && (
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 border-b border-purple-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-purple-900 font-semibold text-sm mb-1">
+                  Looks like you do this regularly
+                </p>
+                <p className="text-purple-700 text-sm">
+                  We can automate this entire process for your team — no more manual CSV uploads.
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href="#enterprise-contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('enterprise-contact')?.scrollIntoView({ behavior: 'smooth' });
+
+                    // Track power user banner click
+                    if (typeof window !== 'undefined' && window.plausible) {
+                      window.plausible('Enterprise CTA Click', {
+                        props: {
+                          source: 'power_user_banner',
+                          isGoal: true
+                        }
+                      });
+                    }
+                  }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors whitespace-nowrap"
+                >
+                  Learn More
+                </a>
+                <button
+                  onClick={() => setShowPowerUserBanner(false)}
+                  className="text-purple-600 hover:text-purple-800 text-xl leading-none"
+                  aria-label="Dismiss banner"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!csvFile ? (
@@ -868,6 +979,51 @@ export default function MapperComponent() {
                 </button>
               </div>
             </div>
+
+            {/* Enterprise Promo CTA - Shows after download */}
+            {showEnterprisePromo && schema === 'calendar-ics' && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg shadow-lg p-6">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl">🚀</div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Doing this for a team or organization?
+                    </h3>
+                    <p className="text-gray-700 mb-4">
+                      We can automate this entire workflow for you — from Google Sheets or your HR system directly to everyone's calendar. No more manual imports.
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href="#enterprise-contact"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document.getElementById('enterprise-contact')?.scrollIntoView({ behavior: 'smooth' });
+
+                          // Track CTA click
+                          if (typeof window !== 'undefined' && window.plausible) {
+                            window.plausible('Enterprise CTA Click', {
+                              props: {
+                                source: 'conversion_success',
+                                isGoal: true
+                              }
+                            });
+                          }
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                      >
+                        Learn More
+                      </a>
+                      <button
+                        onClick={() => setShowEnterprisePromo(false)}
+                        className="text-gray-600 hover:text-gray-800 px-4 py-3 text-sm"
+                      >
+                        Maybe later
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -989,6 +1145,52 @@ export default function MapperComponent() {
             </div>
           </div>
         </div>
+
+        {/* Enterprise Contact Section - Only show for calendar-ics schema */}
+        {schema === 'calendar-ics' && (
+          <div id="enterprise-contact" className="mt-16 scroll-mt-20">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg shadow-xl p-8 text-white mb-8">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold mb-4 text-center">
+                  Calendar Automation for Organizations
+                </h2>
+                <p className="text-blue-100 text-lg mb-8 text-center max-w-2xl mx-auto">
+                  Stop doing manual CSV imports. We'll build a custom integration that syncs your calendars automatically.
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-8 mb-8">
+                  <div>
+                    <h3 className="font-semibold text-xl mb-3">Who it's for:</h3>
+                    <ul className="space-y-2 text-blue-100">
+                      <li>• Universities and school districts</li>
+                      <li>• Corporate operations teams</li>
+                      <li>• Event organizers</li>
+                      <li>• HR and facilities managers</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-xl mb-3">What we build:</h3>
+                    <ul className="space-y-2 text-blue-100">
+                      <li>• Direct integration from Google Sheets or your system</li>
+                      <li>• Automatic sync to staff calendars</li>
+                      <li>• No more manual imports or errors</li>
+                      <li>• Recurring updates handled automatically</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8">
+                  <p className="text-sm text-blue-100 text-center">
+                    <strong className="text-white">Built by CodeBru</strong> — Trusted by universities and established companies since 2015
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <EnterpriseContactForm source="mapper_page" />
+          </div>
+        )}
       </main>
 
       {/* Large file modal */}
