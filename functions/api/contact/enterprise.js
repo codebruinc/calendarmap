@@ -30,9 +30,9 @@ export async function onRequestPost(context) {
       );
     }
 
-    // Check if email service is configured
-    if (!env.EMAIL_API_ID || !env.EMAIL_API_SECRET) {
-      console.error('Email API credentials not configured');
+    // Check if Resend API key is configured
+    if (!env.RESEND_API_KEY) {
+      console.error('Resend API key not configured');
       return new Response(
         JSON.stringify({ error: 'Email service not configured' }),
         {
@@ -83,78 +83,33 @@ ${description}
 Submitted from CalendarMap.app at ${new Date().toISOString()}
     `;
 
-    // Step 1: Get OAuth access token from SendPulse
-    const tokenResponse = await fetch('https://api.sendpulse.com/oauth/access_token', {
+    // Send email via Resend API
+    const emailApiResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        grant_type: 'client_credentials',
-        client_id: env.EMAIL_API_ID,
-        client_secret: env.EMAIL_API_SECRET
+        from: `${name} <${email}>`,
+        to: ['support@codebru.com'],
+        reply_to: email,
+        subject: emailSubject,
+        html: emailHtml,
+        text: emailText
       }),
     });
 
-    if (!tokenResponse.ok) {
-      const errorText = await tokenResponse.text();
-      console.error('SendPulse OAuth error:', errorText);
-      return new Response(
-        JSON.stringify({
-          error: 'Failed to authenticate with email service',
-          details: `OAuth returned ${tokenResponse.status}`
-        }),
-        {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    const tokenData = await tokenResponse.json();
-    const accessToken = tokenData.access_token;
-
-    console.log('OAuth token obtained successfully');
-
-    // Step 2: Send email via SendPulse SMTP API
-    // HTML must be Base64 encoded per SendPulse requirements
-    const htmlBase64 = btoa(unescape(encodeURIComponent(emailHtml)));
-
-    const emailApiResponse = await fetch('https://api.sendpulse.com/smtp/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: {
-          subject: emailSubject,
-          from: {
-            name: `${name} (via CalendarMap)`,
-            email: email
-          },
-          to: [
-            {
-              name: 'CodeBru Support',
-              email: 'support@codebru.com'
-            }
-          ],
-          html: htmlBase64,
-          text: emailText
-        }
-      }),
-    });
-
-    console.log('SendPulse email API response status:', emailApiResponse.status);
+    console.log('Resend API response status:', emailApiResponse.status);
 
     if (!emailApiResponse.ok) {
       const errorText = await emailApiResponse.text();
-      console.error('SendPulse email API error:', errorText);
+      console.error('Resend API error:', errorText);
 
       return new Response(
         JSON.stringify({
           error: 'Failed to send email',
-          details: `SendPulse API returned ${emailApiResponse.status}`,
+          details: `Resend API returned ${emailApiResponse.status}`,
           debug: errorText
         }),
         {
@@ -164,7 +119,8 @@ Submitted from CalendarMap.app at ${new Date().toISOString()}
       );
     }
 
-    console.log('Email sent successfully to support@codebru.com via SendPulse');
+    const responseData = await emailApiResponse.json();
+    console.log('Email sent successfully to support@codebru.com via Resend, ID:', responseData.id);
 
     return new Response(
       JSON.stringify({
