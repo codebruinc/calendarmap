@@ -41,31 +41,46 @@ program
         process.exit(1);
       }
 
-      // Apply mapping
-      const result = applyMapping(parsed.data as any[], template, mapping);
-      
       let output: string;
-      
+
       if (options.schema === 'calendar-ics') {
         // Generate ICS format for calendar schema
-        // Transform mapped data into ICSEvent objects (matching web app logic)
-        const events = result.rows.map(row => ({
-          title: row.Title || '',
-          start: row.Start || '',
-          end: row.End || '',
-          duration: row.Duration || '',
-          all_day: row['All Day'] === true || row['All Day'] === 'TRUE' || row['All Day'] === 'true',
-          timezone: row.Timezone || 'UTC',
-          location: row.Location || '',
-          description: row.Description || '',
-          url: row.URL || '',
-          uid: row.UID || '',
-          organizer: row.Organizer || '',
-          attendees: row.Attendees || '',
-        }));
-        
+        // Read directly from original CSV data using the mapping
+        // mapping maps our field keys (e.g., 'title') to user's column names (e.g., 'Subject')
+        const csvData = parsed.data as any[];
+        const events = csvData.map(row => {
+          // Helper to get value from row using our field key
+          const getValue = (fieldKey: string): string => {
+            const userColumn = mapping[fieldKey];
+            if (!userColumn) return '';
+            const value = row[userColumn];
+            if (value === null || value === undefined) return '';
+            return String(value).trim();
+          };
+
+          const allDayValue = getValue('all_day').toLowerCase();
+          const isAllDay = ['true', '1', 'yes', 'y', 'on'].includes(allDayValue);
+
+          return {
+            title: getValue('title'),
+            start: getValue('start'),
+            end: getValue('end'),
+            duration: getValue('duration'),
+            all_day: isAllDay,
+            timezone: getValue('timezone') || 'UTC',
+            location: getValue('location'),
+            description: getValue('description'),
+            url: getValue('url'),
+            uid: getValue('uid'),
+            organizer: getValue('organizer'),
+            attendees: getValue('attendees'),
+          };
+        });
+
         output = generateICS(events, 'UTC');
       } else {
+        // Apply mapping for non-calendar schemas
+        const result = applyMapping(parsed.data as any[], template, mapping);
         // Generate CSV for other schemas
         output = Papa.unparse({
           fields: result.headers,
