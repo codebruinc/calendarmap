@@ -398,25 +398,37 @@ export default function MapperComponent() {
       });
     }
 
-    const result = applyMapping(csvData, template, mapping);
-
     if (schema === 'calendar-ics') {
-      // Generate ICS file
-      // Note: applyMapping uses field.label as keys (e.g., "Title", "Start")
-      const events: ICSEvent[] = result.rows.map(row => ({
-        title: row['Title'] || '',
-        start: row['Start'] || '',
-        end: row['End'] || '',
-        duration: row['Duration'] || '',
-        all_day: row['All Day'] === true || row['All Day'] === 'true' || row['All Day'] === 'TRUE',
-        timezone: row['Timezone'] || defaultTimezone,
-        location: row['Location'] || '',
-        description: row['Description'] || '',
-        url: row['URL'] || '',
-        uid: row['UID'] || '',
-        organizer: row['Organizer'] || '',
-        attendees: row['Attendees'] || '',
-      }));
+      // Generate ICS file directly from csvData using the mapping
+      // mapping maps our field keys (e.g., 'title') to user's column names (e.g., 'Subject')
+      const events: ICSEvent[] = csvData.map(row => {
+        // Helper to get value from row using our field key
+        const getValue = (fieldKey: string): string => {
+          const userColumn = mapping[fieldKey]; // e.g., mapping['title'] = 'Subject'
+          if (!userColumn) return '';
+          const value = row[userColumn];
+          if (value === null || value === undefined) return '';
+          return String(value).trim();
+        };
+
+        const allDayValue = getValue('all_day').toLowerCase();
+        const isAllDay = ['true', '1', 'yes', 'y', 'on'].includes(allDayValue);
+
+        return {
+          title: getValue('title'),
+          start: getValue('start'),
+          end: getValue('end'),
+          duration: getValue('duration'),
+          all_day: isAllDay,
+          timezone: getValue('timezone') || defaultTimezone,
+          location: getValue('location'),
+          description: getValue('description'),
+          url: getValue('url'),
+          uid: getValue('uid'),
+          organizer: getValue('organizer'),
+          attendees: getValue('attendees'),
+        };
+      });
 
       const ics = generateICS(events, defaultTimezone);
       const blob = new Blob([ics], { type: 'text/calendar' });
@@ -427,6 +439,7 @@ export default function MapperComponent() {
       a.click();
       URL.revokeObjectURL(url);
     } else {
+      const result = applyMapping(csvData, template, mapping);
       // Generate CSV file (for other schemas)
       const csv = Papa.unparse(result.rows);
       const blob = new Blob([csv], { type: 'text/csv' });
