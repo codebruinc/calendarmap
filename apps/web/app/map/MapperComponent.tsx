@@ -76,6 +76,8 @@ export default function MapperComponent() {
   const [hasDownloaded, setHasDownloaded] = useState(false);
   const [showEnterprisePromo, setShowEnterprisePromo] = useState(false);
   const [showPowerUserBanner, setShowPowerUserBanner] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoError, setPromoError] = useState('');
 
   // Check for large file pass on mount and interval
   useEffect(() => {
@@ -351,7 +353,7 @@ export default function MapperComponent() {
         setTransforms(initialTransforms);
       }
     });
-  }, [template]);
+  }, [template, hasLargeFilePass]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -400,19 +402,20 @@ export default function MapperComponent() {
 
     if (schema === 'calendar-ics') {
       // Generate ICS file
+      // Note: applyMapping uses field.label as keys (e.g., "Title", "Start")
       const events: ICSEvent[] = result.rows.map(row => ({
-        title: row.title || '',
-        start: row.start || '',
-        end: row.end || '',
-        duration: row.duration || '',
-        all_day: row.all_day === true || row.all_day === 'true',
-        timezone: row.timezone || defaultTimezone,  // Use defaultTimezone if no per-row override
-        location: row.location || '',
-        description: row.description || '',
-        url: row.url || '',
-        uid: row.uid || '',
-        organizer: row.organizer || '',
-        attendees: row.attendees || '',
+        title: row['Title'] || '',
+        start: row['Start'] || '',
+        end: row['End'] || '',
+        duration: row['Duration'] || '',
+        all_day: row['All Day'] === true || row['All Day'] === 'true' || row['All Day'] === 'TRUE',
+        timezone: row['Timezone'] || defaultTimezone,
+        location: row['Location'] || '',
+        description: row['Description'] || '',
+        url: row['URL'] || '',
+        uid: row['UID'] || '',
+        organizer: row['Organizer'] || '',
+        attendees: row['Attendees'] || '',
       }));
 
       const ics = generateICS(events, defaultTimezone);
@@ -510,6 +513,43 @@ export default function MapperComponent() {
     const toolName = 'calendarmap';
     return `${toolName} map --schema ${schema} --mapping mapping.json < input.csv > output.${outputExtension}`;
   }, [schema]);
+
+  const handlePromoCode = useCallback(() => {
+    const VALID_PROMO_CODE = 'CodeBruInc';
+
+    if (promoCode.trim() === VALID_PROMO_CODE) {
+      // Generate a 24-hour token identical to the paid pass
+      const token = {
+        id: `promo_${Date.now()}`,
+        activated: Date.now(),
+        expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+        maxEvents: 250000,
+        source: 'promo_code'
+      };
+
+      localStorage.setItem('calendarmap_large_file_pass', JSON.stringify(token));
+      setHasLargeFilePass(true);
+      setLargeFilePassInfo({
+        ...token,
+        hoursRemaining: 24,
+        isValid: true
+      });
+      setPromoCode('');
+      setPromoError('');
+
+      // Track promo code redemption
+      if (typeof window !== 'undefined' && window.plausible) {
+        window.plausible('Promo Code Redeemed', {
+          props: {
+            code: 'CodeBruInc',
+            schema: schema
+          }
+        });
+      }
+    } else {
+      setPromoError('Invalid promo code');
+    }
+  }, [promoCode, schema]);
 
   if (!template) {
     return (
@@ -647,6 +687,42 @@ export default function MapperComponent() {
                 </div>
               </div>
             </label>
+
+            {/* Promo Code Section */}
+            {!hasLargeFilePass && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Have a promo code?"
+                    value={promoCode}
+                    onChange={(e) => {
+                      setPromoCode(e.target.value);
+                      setPromoError('');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handlePromoCode();
+                      }
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handlePromoCode();
+                    }}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Apply
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-red-500 text-sm mt-2">{promoError}</p>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           // Mapping interface

@@ -1,6 +1,94 @@
 import { format, parse, isValid } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 
+// Common date formats users might have in their CSVs
+const DATE_TIME_FORMATS = [
+  // ISO formats
+  "yyyy-MM-dd'T'HH:mm:ss",
+  "yyyy-MM-dd'T'HH:mm",
+  "yyyy-MM-dd HH:mm:ss",
+  "yyyy-MM-dd HH:mm",
+  // US formats
+  'MM/dd/yyyy HH:mm:ss',
+  'MM/dd/yyyy HH:mm',
+  'MM/dd/yyyy h:mm a',
+  'MM/dd/yyyy h:mm:ss a',
+  'M/d/yyyy HH:mm',
+  'M/d/yyyy h:mm a',
+  // European formats
+  'dd/MM/yyyy HH:mm:ss',
+  'dd/MM/yyyy HH:mm',
+  'dd-MM-yyyy HH:mm:ss',
+  'dd-MM-yyyy HH:mm',
+  'dd.MM.yyyy HH:mm:ss',
+  'dd.MM.yyyy HH:mm',
+  // Other common formats
+  'yyyy/MM/dd HH:mm:ss',
+  'yyyy/MM/dd HH:mm',
+  'MMMM d, yyyy h:mm a',
+  'MMMM d, yyyy HH:mm',
+  'MMM d, yyyy h:mm a',
+  'MMM d, yyyy HH:mm',
+];
+
+const DATE_ONLY_FORMATS = [
+  'yyyy-MM-dd',
+  'MM/dd/yyyy',
+  'M/d/yyyy',
+  'dd/MM/yyyy',
+  'dd-MM-yyyy',
+  'dd.MM.yyyy',
+  'yyyy/MM/dd',
+  'MMMM d, yyyy',
+  'MMM d, yyyy',
+];
+
+/**
+ * Try to parse a date string using multiple common formats
+ * Exported for use in validation
+ */
+export function parseFlexibleDate(dateStr: string, includeTime: boolean = true): Date | null {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+
+  const trimmed = dateStr.trim();
+  if (!trimmed) return null;
+
+  // First, try native Date parsing (handles ISO 8601 well)
+  // Normalize space to T for ISO-like formats
+  const normalized = trimmed.replace(' ', 'T');
+  const nativeDate = new Date(normalized);
+  if (isValid(nativeDate) && !isNaN(nativeDate.getTime())) {
+    return nativeDate;
+  }
+
+  // Try each format
+  const formats = includeTime ? DATE_TIME_FORMATS : DATE_ONLY_FORMATS;
+  for (const fmt of formats) {
+    try {
+      const parsed = parse(trimmed, fmt, new Date());
+      if (isValid(parsed) && !isNaN(parsed.getTime())) {
+        // Sanity check: year should be reasonable (1900-2100)
+        const year = parsed.getFullYear();
+        if (year >= 1900 && year <= 2100) {
+          return parsed;
+        }
+      }
+    } catch {
+      // Continue to next format
+    }
+  }
+
+  // If includeTime formats failed, try date-only formats and assume midnight
+  if (includeTime) {
+    const dateOnly = parseFlexibleDate(trimmed, false);
+    if (dateOnly) {
+      return dateOnly;
+    }
+  }
+
+  return null;
+}
+
 export interface ICSEvent {
   title: string;
   start: string;
@@ -130,8 +218,8 @@ function simpleHash(str: string): string {
 
 function formatDateOnly(dateStr: string): string {
   try {
-    const date = new Date(dateStr);
-    if (!isValid(date)) return '';
+    const date = parseFlexibleDate(dateStr, false);
+    if (!date) return '';
     return format(date, 'yyyyMMdd');
   } catch {
     return '';
@@ -140,13 +228,14 @@ function formatDateOnly(dateStr: string): string {
 
 function formatDateTime(dateStr: string, timezone: string): string {
   try {
-    const date = new Date(dateStr);
-    if (!isValid(date)) return '';
-    
+    const date = parseFlexibleDate(dateStr, true);
+    if (!date) return '';
+
+    // Note: 'T' must be escaped with single quotes in date-fns format strings
     if (timezone === 'UTC') {
-      return format(date, 'yyyyMMddTHHmmss');
+      return format(date, "yyyyMMdd'T'HHmmss");
     } else {
-      return formatInTimeZone(date, timezone, 'yyyyMMddTHHmmss');
+      return formatInTimeZone(date, timezone, "yyyyMMdd'T'HHmmss");
     }
   } catch {
     return '';

@@ -28,9 +28,12 @@ export type ValidationError = {
 
 export type BusinessWarning = {
   row: number;
-  type: 'unpublished_with_inventory' | 'zero_price_active' | 'deny_policy_no_stock' | 
+  type: 'unpublished_with_inventory' | 'zero_price_active' | 'deny_policy_no_stock' |
         'minimal_customer_info' | 'test_email_detected' | 'address_format_mismatch' |
-        'large_negative_inventory' | 'high_qty_no_cost';
+        'large_negative_inventory' | 'high_qty_no_cost' |
+        // Calendar ICS warning types
+        'end_before_start' | 'event_far_past' | 'event_far_future' |
+        'very_long_event' | 'short_title' | 'generic_title';
   message: string;
 };
 

@@ -14,6 +14,7 @@ function levenshteinDistance(a: string, b: string): number {
 }
 const levenshtein = { get: levenshteinDistance };
 import { Template, Field, GuessMappingResult, ValidationResult, ValidationError, BusinessWarning, MappingResult } from './types';
+import { parseFlexibleDate } from './ics-generator';
 
 /**
  * Auto-map CSV headers to template fields using fuzzy matching + synonyms
@@ -273,7 +274,21 @@ function validateValue(value: any, field: Field, sourceHeader?: string): string 
           return `"${field.label}" "${postalStr}" should be 3-12 characters. Examples: 90210, K1A 0A9, SW1A 1AA, 12345-6789`;
         }
       }
-      
+
+      // Date/datetime validation for calendar fields
+      if ((field.key === 'start' || field.key === 'end') && typeof value === 'string' && value.trim() !== '') {
+        const dateStr = String(value).trim();
+        const parsed = parseFlexibleDate(dateStr, true);
+        if (!parsed) {
+          return `"${field.label}" "${dateStr}" is not a recognized date format. Supported formats include: 2025-01-15, 01/15/2025, January 15, 2025, 2025-01-15 09:00, 01/15/2025 9:00 AM`;
+        }
+        // Sanity check for reasonable dates
+        const year = parsed.getFullYear();
+        if (year < 1970 || year > 2100) {
+          return `"${field.label}" "${dateStr}" has year ${year} which seems unusual. Expected years between 1970-2100.`;
+        }
+      }
+
       break;
   }
   
@@ -296,8 +311,10 @@ function checkBusinessLogic(
     warnings.push(...checkStripeCustomersLogic(rows, template, mapping));
   } else if (template.key === 'shopify-inventory') {
     warnings.push(...checkShopifyInventoryLogic(rows, template, mapping));
+  } else if (template.key === 'calendar-ics') {
+    warnings.push(...checkCalendarIcsLogic(rows, template, mapping));
   }
-  
+
   return warnings;
 }
 
@@ -503,6 +520,104 @@ function checkShopifyInventoryLogic(
     }
   }
   
+  return warnings;
+}
+
+/**
+ * Business logic warnings for Calendar ICS
+ */
+function checkCalendarIcsLogic(
+  rows: any[],
+  template: Template,
+  mapping: GuessMappingResult
+): BusinessWarning[] {
+  const warnings: BusinessWarning[] = [];
+  const now = new Date();
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+
+    const titleHeader = mapping['title'];
+    const startHeader = mapping['start'];
+    const endHeader = mapping['end'];
+
+    // Get values
+    const title = titleHeader ? row[titleHeader] : null;
+    const startStr = startHeader ? row[startHeader] : null;
+    const endStr = endHeader ? row[endHeader] : null;
+
+    // Parse dates
+    const startDate = startStr ? parseFlexibleDate(String(startStr).trim(), true) : null;
+    const endDate = endStr ? parseFlexibleDate(String(endStr).trim(), true) : null;
+
+    // Check: End time before start time
+    if (startDate && endDate && endDate < startDate) {
+      warnings.push({
+        row: i + 1,
+        type: 'end_before_start',
+        message: `Event "${title || 'Untitled'}" has end time before start time`
+      });
+    }
+
+    // Check: Events in the past (more than 1 year ago)
+    if (startDate) {
+      const oneYearAgo = new Date(now);
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      if (startDate < oneYearAgo) {
+        warnings.push({
+          row: i + 1,
+          type: 'event_far_past',
+          message: `Event "${title || 'Untitled'}" is more than 1 year in the past (${startDate.toLocaleDateString()})`
+        });
+      }
+    }
+
+    // Check: Events far in the future (more than 5 years)
+    if (startDate) {
+      const fiveYearsFromNow = new Date(now);
+      fiveYearsFromNow.setFullYear(fiveYearsFromNow.getFullYear() + 5);
+      if (startDate > fiveYearsFromNow) {
+        warnings.push({
+          row: i + 1,
+          type: 'event_far_future',
+          message: `Event "${title || 'Untitled'}" is more than 5 years in the future (${startDate.toLocaleDateString()})`
+        });
+      }
+    }
+
+    // Check: Very long events (more than 7 days)
+    if (startDate && endDate) {
+      const durationMs = endDate.getTime() - startDate.getTime();
+      const durationDays = durationMs / (1000 * 60 * 60 * 24);
+      if (durationDays > 7) {
+        warnings.push({
+          row: i + 1,
+          type: 'very_long_event',
+          message: `Event "${title || 'Untitled'}" spans ${Math.round(durationDays)} days - verify this is intentional`
+        });
+      }
+    }
+
+    // Check: Empty or generic titles
+    if (title) {
+      const titleStr = String(title).trim().toLowerCase();
+      if (titleStr.length < 2) {
+        warnings.push({
+          row: i + 1,
+          type: 'short_title',
+          message: `Event has very short title "${title}" - consider adding more detail`
+        });
+      }
+      if (['test', 'meeting', 'event', 'untitled', 'tbd', 'n/a'].includes(titleStr)) {
+        warnings.push({
+          row: i + 1,
+          type: 'generic_title',
+          message: `Event has generic title "${title}" - consider making it more descriptive`
+        });
+      }
+    }
+  }
+
   return warnings;
 }
 
