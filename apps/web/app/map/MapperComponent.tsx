@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import * as Papa from 'papaparse';
-import { 
-  templates, 
+import {
+  templates,
   guessMapping,
   validateRows,
-  applyMapping,
   generateICS,
   Template,
   GuessMappingResult,
@@ -383,8 +382,11 @@ export default function MapperComponent() {
     }
   }, [mapping, validateMapping]);
 
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+
   const downloadMappedFile = useCallback(() => {
     if (csvData.length === 0) return;
+    setDownloadError(null);
 
     // Track the main conversion event
     if (typeof window !== 'undefined' && window.plausible) {
@@ -397,7 +399,7 @@ export default function MapperComponent() {
       });
     }
 
-    if (schema === 'calendar-ics') {
+    try {
       // Generate ICS file directly from csvData using the mapping
       // mapping maps our field keys (e.g., 'title') to user's column names (e.g., 'Subject')
       const events: ICSEvent[] = csvData.map(row => {
@@ -410,7 +412,8 @@ export default function MapperComponent() {
           return String(value).trim();
         };
 
-        const allDayValue = getValue('all_day').toLowerCase();
+        const allDayRaw = getValue('all_day');
+        const allDayValue = allDayRaw ? allDayRaw.toLowerCase() : '';
         const isAllDay = ['true', '1', 'yes', 'y', 'on'].includes(allDayValue);
 
         return {
@@ -439,17 +442,9 @@ export default function MapperComponent() {
       a.download = `${baseName}.ics`;
       a.click();
       URL.revokeObjectURL(url);
-    } else {
-      const result = applyMapping(csvData, template, mapping);
-      // Generate CSV file (for other schemas)
-      const csv = Papa.unparse(result.rows);
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = csvFile ? csvFile.name.replace('.csv', '_mapped.csv') : 'mapped.csv';
-      a.click();
-      URL.revokeObjectURL(url);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setDownloadError(`Failed to generate ICS file: ${errorMessage}. Please check your data and try again.`);
     }
 
     // Show enterprise promo after successful download
@@ -517,16 +512,14 @@ export default function MapperComponent() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${schema}-errors.csv`;
+    a.download = 'calendar-errors.csv';
     a.click();
     URL.revokeObjectURL(url);
-  }, [validation, schema]);
+  }, [validation]);
 
   const getCLICommand = useCallback(() => {
-    const outputExtension = schema === 'calendar-ics' ? 'ics' : 'csv';
-    const toolName = 'calendarmap';
-    return `${toolName} map --schema ${schema} --mapping mapping.json < input.csv > output.${outputExtension}`;
-  }, [schema]);
+    return `calendarmap map --schema calendar-ics --mapping mapping.json < input.csv > output.ics`;
+  }, []);
 
   const handlePromoCode = useCallback(() => {
     const VALID_PROMO_CODE = 'CodeBruInc';
@@ -1002,13 +995,21 @@ export default function MapperComponent() {
                   </span>
                 </div>
               </div>
+              {/* Download Error Message */}
+              {downloadError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-800 font-medium">Download Error</p>
+                  <p className="text-red-700 text-sm mt-1">{downloadError}</p>
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={downloadMappedFile}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold"
                   disabled={csvData.length === 0}
                 >
-                  {schema === 'calendar-ics' ? 'Download Calendar ICS' : 'Download Mapped CSV'}
+                  Download Calendar ICS
                 </button>
                 <button
                   onClick={downloadMapping}
@@ -1150,8 +1151,8 @@ export default function MapperComponent() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-3">Resources</h3>
               <div className="space-y-2 text-sm">
-                <Link 
-                  href={schema === 'calendar-ics' ? '/docs/csv-to-ics-converter' : `/docs/${schema}-csv-mapper`}
+                <Link
+                  href="/docs/csv-to-ics-converter"
                   className="block text-blue-600 hover:text-blue-800 hover:underline"
                 >
                   📖 Complete Guide & Examples
