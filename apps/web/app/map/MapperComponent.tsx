@@ -434,7 +434,9 @@ export default function MapperComponent() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = csvFile ? csvFile.name.replace('.csv', '.ics') : 'calendar.ics';
+      // Handle various CSV extension cases (.csv, .CSV, or no extension)
+      const baseName = csvFile ? csvFile.name.replace(/\.csv$/i, '') : 'calendar';
+      a.download = `${baseName}.ics`;
       a.click();
       URL.revokeObjectURL(url);
     } else {
